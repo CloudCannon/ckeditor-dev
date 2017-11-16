@@ -387,6 +387,10 @@
 			assert.areSame( '#010203', c( 'rgb(  1,2 , 3 )' ), 'case 4' );
 
 			assert.areSame( 'color:#010203; border-color:#ffff00;', c( 'color:rgb(1,2,3); border-color:rgb(255,255,0);' ), 'multiple' );
+
+			assert.areSame( 'color:#010203; border-color:#ffff00;', c( 'color:rgba(1,2,3,0.5); border-color:rgba(255,255,0,1);' ), 'rgba case 1' );
+			assert.areSame( '#101010', c( 'rgba(16, 16, 16, 0.1)' ), 'rgba case 2' );
+			assert.areSame( '#00ff00', c( 'rgba(0,255,0,0.2)' ), 'rgba case 3' );
 		},
 
 		// http://dev.ckeditor.com/ticket/14252
