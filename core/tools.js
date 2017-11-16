@@ -965,13 +965,13 @@
 		},
 
 		/**
-		 * Finds and converts `rgb(x,x,x)` color definition to hexadecimal notation.
+		 * Finds and converts `rgb(x,y,z)` or `rgba(x,y,z,a)` color definition to hexadecimal notation. Opacity is omitted during conversion process.
 		 *
 		 * @param {String} styleText The style data (or just a string containing RGB colors) to be converted.
 		 * @returns {String} The style data with RGB colors converted to hexadecimal equivalents.
 		 */
 		convertRgbToHex: function( styleText ) {
-			return styleText.replace( /(?:rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\))/gi, function( match, red, green, blue ) {
+			return styleText.replace( /(?:rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*?(?:,\s*\d+(?:\.\d+)?\s*)?\))/gi, function( match, red, green, blue ) {
 				var color = [ red, green, blue ];
 				// Add padding zeros if the hex value is less than 0x10.
 				for ( var i = 0; i < 3; i++ )
@@ -1008,7 +1008,6 @@
 		 */
 		parseCssText: function( styleText, normalize, nativeNormalize ) {
 			var retval = {};
-
 			if ( nativeNormalize ) {
 				// Injects the style in a temporary span object, so the browser parses it,
 				// retrieving its final format.
