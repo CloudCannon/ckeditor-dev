@@ -1,5 +1,5 @@
-/* bender-tags: inlinetoolbar */
-/* bender-ckeditor-plugins: inlinetoolbar,button,richcombo,basicstyles,format  */
+/* bender-tags: inlinetoolbar, context */
+/* bender-ckeditor-plugins: inlinetoolbar */
 
 ( function() {
 	'use strict';
@@ -7,35 +7,24 @@
 	bender.editor = {};
 
 	bender.test( {
-		'test adding button': function() {
-			var panel = this.editor.inlineToolbar.context( { buttons: 'Bold' } );
-			assert.isInstanceOf( CKEDITOR.ui.button, panel.getItem( 'Bold' ), 'Registered button type.' );
-			panel.destroy();
+		tearDown: function() {
+			this.editor.plugins.inlinetoolbar._manager._clear();
 		},
 
-		'test adding rich combo': function() {
-			var panel = this.editor.inlineToolbar.context( { buttons: 'Format' } );
-			assert.isInstanceOf( CKEDITOR.ui.richCombo, panel.getItem( 'Format' ), 'Registered richCombo type.' );
-			panel.destroy();
-		},
-		/*'test context adding': function() {
+		'test exposes editor.plugins.inlinetoolbar.create': function() {
+			var ContextTypeStub = sinon.stub( CKEDITOR.plugins.inlinetoolbar, 'context' ),
+				ret;
 
-		},
+			ContextTypeStub.prototype.show = sinon.stub();
+			ContextTypeStub.prototype.hide = sinon.stub();
+			ContextTypeStub.prototype.destroy = sinon.stub();
 
-		'test focus change': function() {
+			ret = this.editor.plugins.inlinetoolbar.create( {} );
 
-		},
+			ContextTypeStub.restore();
 
-		'test widget adding': function() {
-
-		},
-		'Test widget focusing'*/
-
-		'test context destroy': function() {
-			var stub = sinon.stub( this.editor.inlineToolbar, 'destroy' );
-			bender.editor.destroy();
-			assert.isTrue( stub.called, 'Event show should be fired when editor is destroyed.' );
-			stub.restore();
+			assert.isInstanceOf( ContextTypeStub, ret, 'Ret type' );
+			sinon.assert.calledWithExactly( ContextTypeStub, this.editor, {} );
 		}
 	} );
 } )();
