@@ -57,6 +57,11 @@ CKEDITOR.plugins.add( 'contextmenu', {
 						if ( nativeContextMenuOnCtrl && isCtrlKeyDown )
 							return;
 
+						// Custom condition to only use the context menu for tables
+						if (domEvent.$.target.tagName !== "TD" && domEvent.$.target.tagName !== "TH") {
+							return;
+						}
+
 						// Cancel the browser context menu.
 						domEvent.preventDefault();
 
