@@ -2022,7 +2022,7 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype, {
 			}
 
 			// https://dev.ckeditor.com/ticket/5352 Allow to define the styles directly in the config object
-			if ( configStyleSet instanceof Array ) {
+			if ( CKEDITOR.tools.isArray( configStyleSet ) ) {
 				editor._.stylesDefinitions = configStyleSet;
 				callback( configStyleSet );
 				return;
