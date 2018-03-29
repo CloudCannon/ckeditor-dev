@@ -5,46 +5,117 @@
 		this.requiredContent = style;
 
 		CKEDITOR.tools.extend(this, ext, true);
+	}
+
+	function selectContents(editor, element) {
+		var selectRange = editor.createRange();
+		selectRange.selectNodeContents(element);
+		selectRange.select();
+	}
+
+	function replaceElement(editor, element, newElement) {
+		var insertRange = editor.createRange();
+		insertRange.setStartAt(element, CKEDITOR.POSITION_BEFORE_START);
+		insertRange.collapse(true);
+
+		editor.editable().insertElement(newElement, insertRange);
+		element.remove();
+	}
+
+	var toggleableElements = {
+		p: true,
+		pre: true,
+		blockquote: true,
+		address: true,
+		h1: true,
+		h2: true,
+		h3: true,
+		h4: true,
+		h5: true,
+		h6: true
 	};
 
 	CodeStyleCommand.prototype.exec = function (editor) {
 		editor.focus();
 
 		var selection = editor.getSelection(),
-			text = selection.getSelectedText();
+			selectedText = selection.getSelectedText();
 
-		var element = selection.getStartElement();
-		while (element && (element.getName() !== "p" && element.getName() !== "pre")) {
+		var element = selection.getStartElement(),
+			elementName = element ? element.getName() : null;
+
+		while (element && (!toggleableElements[elementName] && elementName !== "li")) {
 			element = element.getParent();
+			elementName = element ? element.getName() : null;
 		}
 
-		var shouldToggleCodeBlock = !text.trim() ||
+		var containerElement = element;
+		while (containerElement && containerElement.getName() !== "li") {
+			containerElement = containerElement.getParent();
+		}
+
+		var isInsideListItem = containerElement && containerElement.getName && containerElement.getName() === "li";
+
+		var shouldToggleCodeBlock = !selectedText.trim() ||
 			(element && (
-				element.getName() === "pre" ||
-				text.replace(/\s/g, "") === element.getText().replace(/\s/g, "")
+				elementName === "pre" ||
+				selectedText.replace(/\s/g, "") === element.getText().replace(/\s/g, "")
 			));
 
 		if (shouldToggleCodeBlock) {
-			var newElement;
+			var newElement,
+				action,
+				insertRange = selection.getRanges()[0],
+				testNode = insertRange.getNextNode();
 
-			if (element.getName() === "p") {
-				newElement = editor.document.createElement("pre");
-				newElement.setHtml("<code>" + element.getHtml() + "</code>");
-			} else {
-				newElement = editor.document.createElement("p");
-				newElement.setHtml(element.getHtml().trim().replace(/^<code[^>]*>([\s\S]*)<\/code>$/, "$1"));
+			while (testNode && testNode.type === CKEDITOR.NODE_TEXT && testNode.getText() === "") {
+				testNode = testNode.getNext();
 			}
 
-			var insertRange = editor.createRange();
-			insertRange.setStartAt(element, CKEDITOR.POSITION_BEFORE_START);
-			insertRange.collapse(true);
+			if (isInsideListItem && testNode && testNode.getName && testNode.getName() === "br") {
+				action = "append";
+				insertRange = selection.getRanges()[0];
+				insertRange.setStartAfter(element);
+				insertRange.collapse(true);
+				newElement = editor.document.createElement("pre");
+				newElement.setHtml("<code></code>");
+			} else
+			if (elementName === "pre") {
+				action = "replace";
+				newElement = editor.document.createElement("p");
+				newElement.setHtml(element.getHtml().trim().replace(/^<code[^>]*>([\s\S]*)<\/code>$/, "$1"));
+			} else if (toggleableElements[elementName]) {
+				action = "replace";
+				newElement = editor.document.createElement("pre");
+				newElement.setHtml("<code>" + element.getHtml() + "</code>");
+			} else if (isInsideListItem) {
+				action = "wrap";
+			}
 
-			editor.editable().insertElement(newElement, insertRange);
-			element.remove();
+			switch (action) {
+				case "replace":
+					replaceElement(editor, element, newElement);
+					selectContents(editor, newElement);
+					break;
+				case "wrap":
+					element.setHtml("<pre><code>" + element.getHtml().trim().replace(/<\/*(pre|code)[^>]*>/gi, "") + "</code></pre>");
+					selectContents(editor, element);
+					break;
+				case "append":
+					editor.editable().insertElement(newElement, insertRange);
+					selectContents(editor, newElement);
 
-			var selectRange = editor.createRange();
-			selectRange.selectNodeContents(newElement);
-			selectRange.select();
+					if (isInsideListItem) {
+						var strayParagraph = newElement.getNext();
+						if (strayParagraph && strayParagraph.getName && strayParagraph.getName() === "p") {
+							strayParagraph.remove();
+						}
+					}
+					break;
+				default:
+					break;
+			}
+
 			return;
 		}
 
@@ -66,7 +137,7 @@
 				if (!editor.readOnly) {
 					editor.getCommand("code").setState(state);
 				}
-			})
+			});
 
 			editor.addCommand("code", new CodeStyleCommand(style));
 
