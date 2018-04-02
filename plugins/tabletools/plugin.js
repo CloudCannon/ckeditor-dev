@@ -479,6 +479,20 @@
 		}
 	}
 
+	function toggleCells( selectionOrCell ) {
+		if ( selectionOrCell instanceof CKEDITOR.dom.selection ) {
+			var cellsToToggle = getSelectedCells( selectionOrCell );
+
+			selectionOrCell.reset();
+
+			for ( var i = cellsToToggle.length - 1; i >= 0; i-- ) {
+				toggleCells( cellsToToggle[ i ] );
+			}
+		} else if ( selectionOrCell instanceof CKEDITOR.dom.element ) {
+			selectionOrCell.renameNode( selectionOrCell.getName() === 'td' ? 'th' : 'td' );
+		}
+	}
+
 	// Remove filler at end and empty spaces around the cell content.
 	function trimCell( cell ) {
 		var bogus = cell.getBogus();
@@ -912,6 +926,15 @@
 				}
 			} ) );
 
+			addCmd( 'cellToggle', createDef( {
+				requiredContent: 'table',
+				exec: function( editor ) {
+					var selection = editor.getSelection();
+
+					toggleCells( selection );
+				}
+			} ) );
+
 			addCmd( 'cellMerge', createDef( {
 				allowedContent: 'td[colspan,rowspan]',
 				requiredContent: 'td[colspan,rowspan]',
@@ -995,7 +1018,8 @@
 								tablecell_merge_down: mergeCells( selection, 'down', true ) ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
 								tablecell_split_vertical: verticalSplitCell( selection, true ) ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
 								tablecell_split_horizontal: horizontalSplitCell( selection, true ) ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
-								tablecell_properties: cells.length > 0 ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED
+								tablecell_properties: cells.length > 0 ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED,
+								tablecell_toggle: cells.length > 0 ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED
 							};
 						}
 					},
@@ -1061,6 +1085,13 @@
 						group: 'tablecellproperties',
 						command: 'cellProperties',
 						order: 21
+					},
+
+					tablecell_toggle: {
+						label: 'Toggle Cell Header',
+						group: 'tablecell',
+						command: 'cellToggle',
+						order: 22
 					},
 
 					tablerow: {
