@@ -1,6 +1,6 @@
 ﻿/**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -14,10 +14,14 @@
 
 	CKEDITOR.plugins.add( 'widget', {
 		// jscs:disable maximumLineLength
-		lang: 'af,ar,az,bg,ca,cs,cy,da,de,de-ch,el,en,en-gb,eo,es,es-mx,eu,fa,fi,fr,gl,he,hr,hu,id,it,ja,km,ko,ku,lv,nb,nl,no,oc,pl,pt,pt-br,ru,sk,sl,sq,sv,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+		lang: 'af,ar,az,bg,ca,cs,cy,da,de,de-ch,el,en,en-au,en-gb,eo,es,es-mx,eu,fa,fi,fr,gl,he,hr,hu,id,it,ja,km,ko,ku,lv,nb,nl,no,oc,pl,pt,pt-br,ro,ru,sk,sl,sq,sv,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
 		// jscs:enable maximumLineLength
 		requires: 'lineutils,clipboard,widgetselection',
 		onLoad: function() {
+			// Widgets require querySelectorAll for proper work (#1319).
+			if ( CKEDITOR.document.$.querySelectorAll === undefined ) {
+				return;
+			}
 			CKEDITOR.addCss(
 				'.cke_widget_wrapper{' +
 					'position:relative;' +
@@ -27,16 +31,16 @@
 					'display:inline-block' +
 				'}' +
 				'.cke_widget_wrapper:hover>.cke_widget_element{' +
-					'outline:2px solid yellow;' +
+					'outline:2px solid #ffd25c;' +
 					'cursor:default' +
 				'}' +
 				'.cke_widget_wrapper:hover .cke_widget_editable{' +
-					'outline:2px solid yellow' +
+					'outline:2px solid #ffd25c' +
 				'}' +
 				'.cke_widget_wrapper.cke_widget_focused>.cke_widget_element,' +
 				// We need higher specificity than hover style.
 				'.cke_widget_wrapper .cke_widget_editable.cke_widget_editable_focused{' +
-					'outline:2px solid #ace' +
+					'outline:2px solid #47a4f5' +
 				'}' +
 				'.cke_widget_editable{' +
 					'cursor:text' +
@@ -80,9 +84,15 @@
 					'cursor:move !important' +
 				'}'
 			);
+
+			addCustomStyleHandler();
 		},
 
 		beforeInit: function( editor ) {
+			// Widgets require querySelectorAll for proper work (#1319).
+			if ( CKEDITOR.document.$.querySelectorAll === undefined ) {
+				return;
+			}
 			/**
 			 * An instance of widget repository. It contains all
 			 * {@link CKEDITOR.plugins.widget.repository#registered registered widget definitions} and
@@ -103,6 +113,10 @@
 		},
 
 		afterInit: function( editor ) {
+			// Widgets require querySelectorAll for proper work (#1319).
+			if ( CKEDITOR.document.$.querySelectorAll === undefined ) {
+				return;
+			}
 			addWidgetButtons( editor );
 			setupContextMenu( editor );
 		}
@@ -1582,6 +1596,18 @@
 	 */
 	Widget.isDomWidgetWrapper = function( node ) {
 		return node.type == CKEDITOR.NODE_ELEMENT && node.hasAttribute( 'data-cke-widget-wrapper' );
+	};
+
+	/**
+	 * Checks whether the `node` is a DOM widget.
+	 *
+	 * @since 4.8.0
+	 * @static
+	 * @param {CKEDITOR.dom.node} node
+	 * @returns {Boolean}
+	 */
+	Widget.isDomWidget = function( node ) {
+		return node ? this.isDomWidgetWrapper( node ) || this.isDomWidgetElement( node ) : false;
 	};
 
 	/**
@@ -3082,7 +3108,8 @@
 
 	function copySingleWidget( widget, isCut ) {
 		var editor = widget.editor,
-			doc = editor.document;
+			doc = editor.document,
+			isEdge16 = CKEDITOR.env.edge && CKEDITOR.env.version >= 16;
 
 		// We're still handling previous copy/cut.
 		// When keystroke is used to copy/cut this will also prevent
@@ -3090,9 +3117,12 @@
 		if ( doc.getById( 'cke_copybin' ) )
 			return;
 
-			// [IE] Use span for copybin and its container to avoid bug with expanding editable height by
-			// absolutely positioned element.
-		var copybinName = ( editor.blockless || CKEDITOR.env.ie ) ? 'span' : 'div',
+		// [IE] Use span for copybin and its container to avoid bug with expanding
+		// editable height by absolutely positioned element.
+		// For Edge 16+ always use div, as span causes scrolling to the end of the document
+		// on widget cut (also for blockless editor) (#1160).
+		// Edge 16+ workaround could be safetly removed after #1169 is fixed.
+		var copybinName = ( ( editor.blockless || CKEDITOR.env.ie ) && !isEdge16 ) ? 'span' : 'div',
 			copybin = doc.createElement( copybinName ),
 			copybinContainer = doc.createElement( copybinName ),
 			// IE8 always jumps to the end of document.
@@ -3161,7 +3191,8 @@
 
 			editor.fire( 'unlockSnapshot' );
 
-			if ( isCut ) {
+			// Prevent cutting in read-only editor (#1570).
+			if ( isCut && !editor.readOnly ) {
 				widget.repository.del( widget );
 				editor.fire( 'saveSnapshot' );
 			}
@@ -3572,7 +3603,7 @@
 	// WIDGET STYLE HANDLER ---------------------------------------------------
 	//
 
-	( function() {
+	function addCustomStyleHandler() {
 		// Styles categorized by group. It is used to prevent applying styles for the same group being used together.
 		var styleGroups = {};
 
@@ -3827,7 +3858,7 @@
 			}
 		}
 
-	} )();
+	}
 
 	//
 	// EXPOSE PUBLIC API ------------------------------------------------------

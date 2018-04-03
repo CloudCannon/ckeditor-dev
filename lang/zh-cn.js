@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -78,10 +78,13 @@ CKEDITOR.lang[ 'zh-cn' ] = {
 		width: '宽度',
 		height: '高度',
 		align: '对齐方式',
+		left: '左对齐',
+		right: '右对齐',
+		center: '居中',
+		justify: '两端对齐',
 		alignLeft: '左对齐',
 		alignRight: '右对齐',
-		alignCenter: '居中',
-		alignJustify: '两端对齐',
+		alignCenter: 'Align Center', // MISSING
 		alignTop: '顶端',
 		alignMiddle: '居中',
 		alignBottom: '底部',
@@ -89,6 +92,7 @@ CKEDITOR.lang[ 'zh-cn' ] = {
 		invalidValue: '无效的值。',
 		invalidHeight: '高度必须为数字格式',
 		invalidWidth: '宽度必须为数字格式',
+		invalidLength: 'Value specified for the "%1" field must be a positive number with or without a valid measurement unit (%2).', // MISSING
 		invalidCssLength: '此“%1”字段的值必须为正数，可以包含或不包含一个有效的 CSS 长度单位(px, %, in, cm, mm, em, ex, pt 或 pc)',
 		invalidHtmlLength: '此“%1”字段的值必须为正数，可以包含或不包含一个有效的 HTML 长度单位(px 或 %)',
 		invalidInlineStyle: '内联样式必须为格式是以分号分隔的一个或多个“属性名 : 属性值”。',
@@ -108,6 +112,30 @@ CKEDITOR.lang[ 'zh-cn' ] = {
 			35: '行尾键',
 			36: '行首键',
 			46: '删除键',
+			112: 'F1', // MISSING
+			113: 'F2', // MISSING
+			114: 'F3', // MISSING
+			115: 'F4', // MISSING
+			116: 'F5', // MISSING
+			117: 'F6', // MISSING
+			118: 'F7', // MISSING
+			119: 'F8', // MISSING
+			120: 'F9', // MISSING
+			121: 'F10', // MISSING
+			122: 'F11', // MISSING
+			123: 'F12', // MISSING
+			124: 'F13', // MISSING
+			125: 'F14', // MISSING
+			126: 'F15', // MISSING
+			127: 'F16', // MISSING
+			128: 'F17', // MISSING
+			129: 'F18', // MISSING
+			130: 'F19', // MISSING
+			131: 'F20', // MISSING
+			132: 'F21', // MISSING
+			133: 'F22', // MISSING
+			134: 'F23', // MISSING
+			135: 'F24', // MISSING
 			224: 'Command'
 		},
 

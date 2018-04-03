@@ -1,13 +1,13 @@
 ﻿/**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 'use strict';
 
 ( function() {
 	CKEDITOR.plugins.add( 'filetools', {
-		lang: 'az,ca,cs,da,de,de-ch,en,eo,es,es-mx,eu,fr,gl,hr,hu,id,it,ja,km,ko,ku,nb,nl,oc,pl,pt,pt-br,ru,sk,sv,tr,ug,uk,zh,zh-cn', // %REMOVE_LINE_CORE%
+		lang: 'az,ca,cs,da,de,de-ch,en,en-au,eo,es,es-mx,eu,fr,gl,hr,hu,id,it,ja,km,ko,ku,nb,nl,oc,pl,pt,pt-br,ro,ru,sk,sq,sv,tr,ug,uk,zh,zh-cn', // %REMOVE_LINE_CORE%
 
 		beforeInit: function( editor ) {
 			/**
@@ -48,7 +48,9 @@
 			editor.on( 'fileUploadRequest', function( evt ) {
 				var fileLoader = evt.data.fileLoader,
 					$formData = new FormData(),
-					requestData = evt.data.requestData;
+					requestData = evt.data.requestData,
+					configXhrHeaders = editor.config.fileTools_requestHeaders,
+					header;
 
 				for ( var name in requestData ) {
 					var value = requestData[ name ];
@@ -63,6 +65,12 @@
 				}
 				// Append token preventing CSRF attacks.
 				$formData.append( 'ckCsrfToken', CKEDITOR.tools.getCsrfToken() );
+
+				if ( configXhrHeaders ) {
+					for ( header in configXhrHeaders ) {
+						fileLoader.xhr.setRequestHeader( header, configXhrHeaders[ header ] );
+					}
+				}
 
 				fileLoader.xhr.send( $formData );
 			}, null, null, 999 );
@@ -146,11 +154,15 @@
 		 *
 		 * @param {Blob/String} fileOrData See {@link CKEDITOR.fileTools.fileLoader}.
 		 * @param {String} fileName See {@link CKEDITOR.fileTools.fileLoader}.
+		 * @param {Function} [loaderType] Loader type to be created. If skipped, the default {@link CKEDITOR.fileTools.fileLoader}
+		 * type will be used.
 		 * @returns {CKEDITOR.fileTools.fileLoader} The created file loader instance.
 		 */
-		create: function( fileOrData, fileName ) {
+		create: function( fileOrData, fileName, loaderType ) {
+			loaderType = loaderType || FileLoader;
+
 			var id = this.loaders.length,
-				loader = new FileLoader( this.editor, fileOrData, fileName );
+				loader = new loaderType( this.editor, fileOrData, fileName );
 
 			loader.id = id;
 			this.loaders[ id ] = loader;
@@ -647,7 +659,7 @@
 			};
 
 			function onError() {
-				// Prevent changing status twice, when HHR.error and XHR.upload.onerror could be called together.
+				// Prevent changing status twice, when XHR.error and XHR.upload.onerror could be called together.
 				if ( loader.status == 'error' ) {
 					return;
 				}
@@ -657,7 +669,7 @@
 			}
 
 			function onAbort() {
-				// Prevent changing status twice, when HHR.onabort and XHR.upload.onabort could be called together.
+				// Prevent changing status twice, when XHR.onabort and XHR.upload.onabort could be called together.
 				if ( loader.status == 'abort' ) {
 					return;
 				}
@@ -856,7 +868,22 @@
 		 */
 		isTypeSupported: function( file, supportedTypes ) {
 			return !!file.type.match( supportedTypes );
-		}
+		},
+
+		/**
+		 * Feature detection indicating whether the current browser supports methods essential to send files over an XHR request.
+		 *
+		 * @since 4.9.0
+		 * @property {Boolean} isFileUploadSupported
+		 */
+		isFileUploadSupported: ( function() {
+			return typeof FileReader === 'function' &&
+				typeof ( new FileReader() ).readAsDataURL === 'function' &&
+				typeof FormData === 'function' &&
+				typeof ( new FormData() ).append === 'function' &&
+				typeof XMLHttpRequest === 'function' &&
+				typeof Blob === 'function';
+		} )()
 	} );
 } )();
 
@@ -871,7 +898,7 @@
  */
 
 /**
- * Default file name (without extension) that will be used for files created from a Base64 data string
+ * The default file name (without extension) that will be used for files created from a Base64 data string
  * (for example for files pasted into the editor).
  * This name will be combined with the MIME type to create the full file name with the extension.
  *
@@ -883,5 +910,22 @@
  *
  * @since 4.5.3
  * @cfg {String} [fileTools_defaultFileName='']
+ * @member CKEDITOR.config
+ */
+
+/**
+ * Allows to add extra headers for every request made using the {@link CKEDITOR.fileTools} API.
+ *
+ * Note that headers can still be customized per a single request, using the
+ * [`fileUploadRequest`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-event-fileUploadRequest)
+ * event.
+ *
+ *		config.fileTools_requestHeaders = {
+ *			'X-Requested-With': 'XMLHttpRequest',
+ *			'Custom-Header': 'header value'
+ *		};
+ *
+ * @since 4.9.0
+ * @cfg {Object} [fileTools_requestHeaders]
  * @member CKEDITOR.config
  */

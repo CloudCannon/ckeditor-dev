@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
@@ -228,10 +228,10 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 						'default': '',
 						items: [
 							[ langCommon.notSet, '' ],
-							[ langCommon.alignLeft, 'left' ],
-							[ langCommon.alignCenter, 'center' ],
-							[ langCommon.alignRight, 'right' ],
-							[ langCommon.alignJustify, 'justify' ]
+							[ langCommon.left, 'left' ],
+							[ langCommon.center, 'center' ],
+							[ langCommon.right, 'right' ],
+							[ langCommon.justify, 'justify' ]
 						],
 						setup: setupCells( function( element ) {
 							var alignAttr = element.getAttribute( 'align' ),

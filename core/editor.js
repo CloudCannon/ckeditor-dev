@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -170,7 +170,16 @@
 
 		// Handle startup focus.
 		this.on( 'instanceReady', function() {
-			this.config.startupFocus && this.focus();
+			if ( this.config.startupFocus ) {
+				if ( this.config.startupFocus === 'end' ) {
+					var range = this.createRange();
+					range.selectNodeContents( this.editable() );
+					range.shrink( CKEDITOR.SHRINK_ELEMENT, true );
+					range.collapse();
+					this.getSelection().selectRanges( [ range ] );
+				}
+				this.focus();
+			}
 		} );
 
 		CKEDITOR.fire( 'instanceCreated', null, this );
@@ -731,12 +740,14 @@
 		 * 			}
 		 * 		} );
 		 *
+		 * Since 4.10.0 this method also accepts `CKEDITOR.command` instance as param.
+		 *
 		 * @param {String} commandName The indentifier name of the command.
-		 * @param {CKEDITOR.commandDefinition} commandDefinition The command definition.
+		 * @param {CKEDITOR.commandDefinition/CKEDITOR.command} commandDefinition The command definition or the command instance.
 		 */
 		addCommand: function( commandName, commandDefinition ) {
 			commandDefinition.name = commandName.toLowerCase();
-			var cmd = new CKEDITOR.command( this, commandDefinition );
+			var cmd = commandDefinition instanceof CKEDITOR.command ? commandDefinition : new CKEDITOR.command( this, commandDefinition );
 
 			// Update command when mode is set.
 			// This guarantees that commands added before first editor#mode
@@ -1566,9 +1577,19 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
 /**
  * Whether an editable element should have focus when the editor is loading for the first time.
  *
+ *		// Focus at the beginning of the editable.
  *		config.startupFocus = true;
  *
- * @cfg {Boolean} [startupFocus=false]
+ * Since CKEditor 4.9.0, `startupFocus` can be explicitly set to either the `start` or the `end`
+ * of the editable:
+ *
+ *		// Focus at the beginning of the editable.
+ *		config.startupFocus = 'start';
+ *
+ *		// Focus at the end of the editable.
+ *		config.startupFocus = 'end';
+ *
+ * @cfg {String/Boolean} [startupFocus=false]
  * @member CKEDITOR.config
  */
 

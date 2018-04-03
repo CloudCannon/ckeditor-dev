@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 ( function() {
@@ -206,7 +206,7 @@
 			},
 
 			/**
-			 * Restore all attribution changes made by {@link #changeAttr }.
+			 * Restore all attribution changes made by {@link #changeAttr}.
 			 */
 			restoreAttrs: function() {
 				var changes = this._.attrChanges, orgVal;
@@ -1330,6 +1330,7 @@
 				var ariaLabel = editor.title;
 
 				editable.changeAttr( 'role', 'textbox' );
+				editable.changeAttr( 'aria-multiline', 'true' ); // (#1034)
 				editable.changeAttr( 'aria-label', ariaLabel );
 
 				if ( ariaLabel )

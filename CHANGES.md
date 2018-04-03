@@ -1,10 +1,97 @@
 ﻿CKEditor 4 Changelog
 ====================
 
-## CKEditor 4.8
+## CKEditor 4.10
 
 New Features:
 
+* [#1761](https://github.com/ckeditor/ckeditor-dev/issues/1761): [Autolink](https://ckeditor.com/cke4/addon/autolink) plugin supports email links.
+
+Fixed Issues:
+
+* [#1458](https://github.com/ckeditor/ckeditor-dev/issues/1458): [Edge] Fixed: After blurring editor it takes 2 clicks to focus a widget.
+* [#1034](https://github.com/ckeditor/ckeditor-dev/issues/1034): Fixed: JAWS leaves forms mode after pressing <kbd>Enter</kbd> key in an inline CKEditor instance.
+* [#1748](https://github.com/ckeditor/ckeditor-dev/pull/1748): Fixed: Added missing [`CKEDITOR.dialog.definition.onHide`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_dialog_definition.html#property-onHide) API documentation. Thanks to [sunnyone](https://github.com/sunnyone)!
+* [#1321](https://github.com/ckeditor/ckeditor-dev/issues/1321): Ideographic space character `\u3000` is lost when pasting text.
+* [#1776](https://github.com/ckeditor/ckeditor-dev/issues/1776): [Image Base](https://ckeditor.com/cke4/addon/imagebase) empty caption placeholder is not hidden when blurred.
+* [#1592](https://github.com/ckeditor/ckeditor-dev/issues/1592): [Image Base](https://ckeditor.com/cke4/addon/imagebase) caption is not visible after paste.
+
+API Changes:
+
+* [#1582](https://github.com/ckeditor/ckeditor-dev/issues/1582): The [`CKEDITOR.editor.addCommand`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_editor.html#method-addCommand) can accept [`CKEDITOR.command`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_command.html) instance as parameter.
+
+## CKEditor 4.9.1
+
+Fixed Issues:
+
+* [#1835](https://github.com/ckeditor/ckeditor-dev/issues/1835): Fixed: Integration between [CKFinder](https://ckeditor.com/ckeditor-4/ckfinder/) and the [File Browser](https://ckeditor.com/cke4/addon/filebrowser) plugin does not work.
+
+## CKEditor 4.9
+
+New Features:
+
+* [#932](https://github.com/ckeditor/ckeditor-dev/issues/932): Introduced Easy Image feature for inserting images that are automatically rescaled, optimized, responsive and delivered through a blazing-fast CDN. Three new plugins were added to support it:
+    * [Easy Image](https://ckeditor.com/cke4/addon/easyimage),
+    * [Cloud Services](https://ckeditor.com/cke4/addon/cloudservices)
+    * [Image Base](https://ckeditor.com/cke4/addon/imagebase)
+* [#1338](https://github.com/ckeditor/ckeditor-dev/issues/1338): Keystroke labels are displayed for function keys (like F7, F8).
+* [#643](https://github.com/ckeditor/ckeditor-dev/issues/643): The [File Browser](https://ckeditor.com/cke4/addon/filebrowser) plugin can now upload files using XHR requests. This allows for setting custom HTTP headers using the [`config.fileTools_requestHeaders`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-fileTools_requestHeaders) configuration option.
+* [#1365](https://github.com/ckeditor/ckeditor-dev/issues/1365): The [File Browser](https://ckeditor.com/cke4/addon/filebrowser) plugin uses XHR requests by default.
+* [#1399](https://github.com/ckeditor/ckeditor-dev/issues/1399): Added the possibility to set [`CKEDITOR.config.startupFocus`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-startupFocus) as `start` or `end` to specify where the editor focus should be after the initialization.
+* [#1441](https://github.com/ckeditor/ckeditor-dev/issues/1441): The [Magic Line](https://ckeditor.com/cke4/addon/magicline) plugin line element can now be identified by the `data-cke-magic-line="1"` attribute.
+
+Fixed Issues:
+
+* [#595](https://github.com/ckeditor/ckeditor-dev/issues/595): Fixed: Pasting does not work on mobile devices.
+* [#869](https://github.com/ckeditor/ckeditor-dev/issues/869): Fixed: Empty selection clears cached clipboard data in the editor.
+* [#1419](https://github.com/ckeditor/ckeditor-dev/issues/1419): Fixed: The [Widget Selection](https://ckeditor.com/cke4/addon/widgetselection) plugin selects the editor content with the <kbd>Alt+A</kbd> key combination on Windows.
+* [#1274](https://github.com/ckeditor/ckeditor-dev/issues/1274): Fixed: [Balloon Toolbar](https://ckeditor.com/cke4/addon/balloontoolbar) does not match a single selected image using the [`contextDefinition.cssSelector`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.plugins.balloontoolbar.contextDefinition-property-cssSelector) matcher.
+* [#1232](https://github.com/ckeditor/ckeditor-dev/issues/1232): Fixed: [Balloon Toolbar](https://ckeditor.com/cke4/addon/balloontoolbar) buttons should be registered as focusable elements.
+* [#1342](https://github.com/ckeditor/ckeditor-dev/issues/1342): Fixed: [Balloon Toolbar](https://ckeditor.com/cke4/addon/balloontoolbar) should be re-positioned after the [`change`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-event-change) event.
+* [#1426](https://github.com/ckeditor/ckeditor-dev/issues/1426): [IE8-9] Fixed: Missing [Balloon Toolbar](https://ckeditor.com/cke4/addon/balloontoolbar) background in the [Kama](https://ckeditor.com/cke4/addon/kama) skin. Thanks to [Christian Elmer](https://github.com/keinkurt)!
+* [#1470](https://github.com/ckeditor/ckeditor-dev/issues/1470): Fixed: [Balloon Toolbar](https://ckeditor.com/cke4/addon/balloontoolbar) is not visible after drag and drop of a widget it is attached to.
+* [#1048](https://github.com/ckeditor/ckeditor-dev/issues/1048): Fixed: [Balloon Panel](https://ckeditor.com/cke4/addon/balloonpanel) is not positioned properly when a margin is added to its non-static parent.
+* [#889](https://github.com/ckeditor/ckeditor-dev/issues/889): Fixed: Unclear error message for width and height fields in the [Image](https://ckeditor.com/cke4/addon/image) and [Enhanced Image](https://ckeditor.com/cke4/addon/image2) plugins.
+* [#859](https://github.com/ckeditor/ckeditor-dev/issues/859): Fixed: Cannot edit a link after a double-click on the text in the link.
+* [#1013](https://github.com/ckeditor/ckeditor-dev/issues/1013): Fixed: [Paste from Word](https://ckeditor.com/cke4/addon/pastefromword) does not work correctly with the [`config.forcePasteAsPlainText`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-forcePasteAsPlainText) option.
+* [#1356](https://github.com/ckeditor/ckeditor-dev/issues/1356): Fixed: [Border parse function](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.tools.style.parse-method-border) does not allow spaces in the color value.
+* [#1010](https://github.com/ckeditor/ckeditor-dev/issues/1010): Fixed: The CSS `border` shorthand property was incorrectly expanded ignoring the `border-color` style.
+* [#1535](https://github.com/ckeditor/ckeditor-dev/issues/1535): Fixed: [Widget](https://ckeditor.com/cke4/addon/widget) mouseover border contrast is insufficient.
+* [#1516](https://github.com/ckeditor/ckeditor-dev/issues/1516): Fixed: Fake selection allows removing content in read-only mode using the <kbd>Backspace</kbd> and <kbd>Delete</kbd> keys.
+* [#1570](https://github.com/ckeditor/ckeditor-dev/issues/1570): Fixed: Fake selection allows cutting content in read-only mode using the <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>X</kbd> keys.
+* [#1363](https://github.com/ckeditor/ckeditor-dev/issues/1363): Fixed: Paste notification is unclear and it might confuse users.
+
+API Changes:
+
+* [#1346](https://github.com/ckeditor/ckeditor-dev/issues/1346): [Balloon Toolbar](https://ckeditor.com/cke4/addon/balloontoolbar) [context manager API](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.plugins.balloontoolbar.contextManager) is now available in the [`pluginDefinition.init`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.pluginDefinition-method-init) method of the [requiring](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.pluginDefinition-property-requires) plugin.
+* [#1530](https://github.com/ckeditor/ckeditor-dev/issues/1530): Added the possibility to use custom icons for [buttons](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR_ui_button.html).
+
+Other Changes:
+
+* Updated [SCAYT](https://ckeditor.com/cke4/addon/scayt) (Spell Check As You Type) and [WebSpellChecker](https://ckeditor.com/cke4/addon/wsc) (WSC) plugins:
+	* SCAYT [`scayt_minWordLength`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_config.html#scayt_minWordLength) configuration option now defaults to 3 instead of 4.
+	* SCAYT default number of suggested words in the context menu changed to 3.
+	* [#90](https://github.com/WebSpellChecker/ckeditor-plugin-scayt/issues/90): Fixed: Selection is lost on link creation if SCAYT highlights the word.
+	* Fixed: SCAYT crashes when the browser `localStorage` is disabled.
+	* [IE11] Fixed: `Unable to get property type of undefined or null reference` error in the browser console when SCAYT is disabled/enabled.
+	* [#46](https://github.com/WebSpellChecker/ckeditor-plugin-wsc/issues/46): Fixed: Editing is blocked when remote spell checker server is offline.
+	* Fixed: User Dictionary cannot be created in WSC due to `You already have the dictionary` error.
+	* Fixed: Words with apostrophe `'` on the replacement make the WSC dialog inaccessible.
+	* Fixed: SCAYT/WSC causes the `Uncaught TypeError` error in the browser console.
+* [#1337](https://github.com/ckeditor/ckeditor-dev/issues/1337): Updated the samples layout with the new CKEditor 4 logo and color scheme.
+* [#1591](https://github.com/ckeditor/ckeditor-dev/issues/1591): CKBuilder and language tools are now downloaded over HTTPS. Thanks to [August Detlefsen](https://github.com/augustd)!
+
+## CKEditor 4.8
+
+**Important Notes:**
+
+* [#1249](https://github.com/ckeditor/ckeditor-dev/issues/1249): Enabled the [Upload Image](https://ckeditor.com/cke4/addon/uploadimage) plugin by default in standard and full presets. Also, it will no longer log an error in case of missing [`config.imageUploadUrl`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-imageUploadUrl) property.
+
+New Features:
+
+* [#933](https://github.com/ckeditor/ckeditor-dev/issues/933): Introduced [Balloon Toolbar](https://ckeditor.com/cke4/addon/balloontoolbar) plugin.
+* [#662](https://github.com/ckeditor/ckeditor-dev/issues/662): Introduced image inlining for the [Paste from Word](https://ckeditor.com/cke4/addon/pastefromword) plugin.
+* [#468](https://github.com/ckeditor/ckeditor-dev/issues/468): [Edge] Introduced support for the Clipboard API.
 * [#607](https://github.com/ckeditor/ckeditor-dev/issues/607): Manually inserted Hex color is prefixed with a hash character (`#`) if needed. It ensures a valid Hex color value is used when setting the table cell border or background color with the [Color Dialog](https://ckeditor.com/cke4/addon/colordialog) window.
 * [#584](https://github.com/ckeditor/ckeditor-dev/issues/584): [Font size and Family](https://ckeditor.com/cke4/addon/font) and [Format](https://ckeditor.com/cke4/addon/format) drop-downs are not toggleable anymore. Default option to reset styles added.
 * [#856](https://github.com/ckeditor/ckeditor-dev/issues/856): Introduced the [`CKEDITOR.tools.keystrokeToArray`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.tools-method-keystrokeToArray) method. It converts a keystroke into its string representation, returning every key name as a separate array element.
@@ -29,6 +116,15 @@ Fixed Issues:
 * [#1094](https://github.com/ckeditor/ckeditor-dev/issues/1094): Fixed: Widget definition [`upcast`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.plugins.widget.definition-property-upcasts) methods are called for every element.
 * [#1057](https://github.com/ckeditor/ckeditor-dev/issues/1057): Fixed: The [Notification](https://ckeditor.com/addon/notification) plugin overwrites Web Notifications API due to leakage to the global scope.
 * [#1068](https://github.com/ckeditor/ckeditor-dev/issues/1068): Fixed: Upload widget paste listener ignores changes to the [`uploadWidgetDefinition`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.fileTools.uploadWidgetDefinition).
+* [#921](https://github.com/ckeditor/ckeditor-dev/issues/921): Fixed: [Edge] CKEditor erroneously perceives internal copy and paste as type "external".
+* [#1213](https://github.com/ckeditor/ckeditor-dev/issues/1213): Fixed: Multiple images uploaded using [Upload Image](https://ckeditor.com/cke4/addon/uploadimage) plugin are randomly duplicated or mangled.
+* [#532](https://github.com/ckeditor/ckeditor-dev/issues/532): Fixed: Removed an outdated user guide link from the [About](https://ckeditor.com/cke4/addon/about) dialog.
+* [#1221](https://github.com/ckeditor/ckeditor-dev/issues/1221): Fixed: Invalid CSS loaded by [Balloon Panel](https://ckeditor.com/cke4/addon/balloonpanel) plugin when [`config.skin`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-skin) is loaded using a custom path.
+* [#522](https://github.com/ckeditor/ckeditor-dev/issues/522): Fixed: Widget selection is not removed when widget is inside table cell with [Table Selection](https://ckeditor.com/cke4/addon/tableselection) plugin enabled.
+* [#1027](https://github.com/ckeditor/ckeditor-dev/issues/1027): Fixed: Cannot add multiple images to the table with [Table Selection](https://ckeditor.com/cke4/addon/tableselection) plugin in certain situations.
+* [#1069](https://github.com/ckeditor/ckeditor-dev/issues/1069): Fixed: Wrong shape processing by [Paste from Word](https://ckeditor.com/cke4/addon/pastefromword) plugin.
+* [#995](https://github.com/ckeditor/ckeditor-dev/issues/995): Fixed: Hyperlinked image gets inserted twice by [Paste from Word](https://ckeditor.com/cke4/addon/pastefromword) plugin.
+* [#1287](https://github.com/ckeditor/ckeditor-dev/issues/1287): Fixed: [Widget](https://ckeditor.com/cke4/addon/widget) plugin throws exception if included in editor build but not loaded into editor's instance.
 
 API Changes:
 
@@ -64,7 +160,7 @@ Other Changes:
 	* [#40](https://github.com/WebSpellChecker/ckeditor-plugin-wsc/issues/40): Fixed: IE10 throws an error when spell checking is started.
 * [#800](https://github.com/ckeditor/ckeditor-dev/issues/800): Added the [`CKEDITOR.dom.selection.isCollapsed`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.dom.selection-method-isCollapsed) method which is a simpler way to check if the selection is collapsed.
 * [#830](https://github.com/ckeditor/ckeditor-dev/issues/830): Added an option to define which dialog tab should be shown by default when creating [`CKEDITOR.dialogCommand`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.dialogCommand).
-`
+
 ## CKEditor 4.7.2
 
 New Features:

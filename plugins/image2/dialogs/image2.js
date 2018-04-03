@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -77,7 +77,7 @@ CKEDITOR.dialog.add( 'image2', function( editor ) {
 			isValid = !!( match && parseInt( match[ 1 ], 10 ) !== 0 );
 
 		if ( !isValid )
-			alert( commonLang[ 'invalid' + CKEDITOR.tools.capitalize( this.id ) ] ); // jshint ignore:line
+			alert( commonLang[ 'invalidLength' ].replace( '%1', commonLang[ this.id ] ).replace( '%2', 'px' ) ); // jshint ignore:line
 
 		return isValid;
 	}
@@ -499,9 +499,9 @@ CKEDITOR.dialog.add( 'image2', function( editor ) {
 								type: 'radio',
 								items: [
 									[ commonLang.alignNone, 'none' ],
-									[ commonLang.alignLeft, 'left' ],
-									[ commonLang.alignCenter, 'center' ],
-									[ commonLang.alignRight, 'right' ]
+									[ commonLang.left, 'left' ],
+									[ commonLang.center, 'center' ],
+									[ commonLang.right, 'right' ]
 								],
 								label: commonLang.align,
 								setup: function( widget ) {

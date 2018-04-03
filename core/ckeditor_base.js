@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -20,6 +20,7 @@ if ( !window.CKEDITOR ) {
 	/**
 	 * This is the API entry point. The entire CKEditor code runs under this object.
 	 * @class CKEDITOR
+	 * @mixins CKEDITOR.event
 	 * @singleton
 	 */
 	window.CKEDITOR = ( function() {

@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 ( function() {
@@ -11,6 +11,10 @@
 		fillingCharSequenceRegExp = new RegExp( fillingCharSequence + '( )?', 'g' ),
 		isSelectingTable;
 
+	function isWidget( element ) {
+		return CKEDITOR.plugins.widget && CKEDITOR.plugins.widget.isDomWidget( element );
+	}
+
 	// #### table selection : START
 	// @param {CKEDITOR.dom.range[]} ranges
 	// @param {Boolean} allowPartially Whether a collapsed selection within table is recognized to be a valid selection.
@@ -19,7 +23,10 @@
 		if ( ranges.length === 0 ) {
 			return false;
 		}
-
+		// It's not table selection when selected node is a widget (#1027).
+		if ( isWidget( ranges[ 0 ].getEnclosedNode() ) ) {
+			return false;
+		}
 		var node,
 			i;
 
@@ -94,6 +101,11 @@
 			}
 
 			return table.equals( fakeTable ) || fakeTable.contains( table );
+		}
+
+		// When widget is selected, then definitely it's not a table (#1027).
+		if ( isWidget( fakeSelection.getSelectedElement() ) ) {
+			return false;
 		}
 
 		if ( isValidTableSelection( table, fakeTable, ranges, fakeRanges ) ) {
@@ -513,6 +525,11 @@
 				var editor = evt.editor,
 					range = editor.createRange(),
 					found;
+
+				// We have to skip deletion for read only editor (#1516).
+				if ( editor.readOnly ) {
+					return;
+				}
 
 				// If haven't found place for caret on the default side,
 				// try to find it on the other side.
@@ -1073,8 +1090,9 @@
 		}, null, null, 100 );
 
 		editor.on( 'key', function( evt ) {
-			if ( editor.mode != 'wysiwyg' )
+			if ( editor.mode != 'wysiwyg' ) {
 				return;
+			}
 
 			var sel = editor.getSelection();
 			if ( !sel.isFake )
@@ -1907,7 +1925,6 @@
 				// faked or its clone.
 				if ( this.rev == editor._.fakeSelection.rev ) {
 					delete editor._.fakeSelection;
-
 					removeHiddenSelectionContainer( editor );
 				}
 				else {
