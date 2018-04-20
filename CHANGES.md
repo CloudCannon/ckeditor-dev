@@ -15,10 +15,24 @@ Fixed Issues:
 * [#1321](https://github.com/ckeditor/ckeditor-dev/issues/1321): Ideographic space character `\u3000` is lost when pasting text.
 * [#1776](https://github.com/ckeditor/ckeditor-dev/issues/1776): [Image Base](https://ckeditor.com/cke4/addon/imagebase) empty caption placeholder is not hidden when blurred.
 * [#1592](https://github.com/ckeditor/ckeditor-dev/issues/1592): [Image Base](https://ckeditor.com/cke4/addon/imagebase) caption is not visible after paste.
+* [#620](https://github.com/ckeditor/ckeditor-dev/issues/620): Fixed: [`forcePasteAsPlainText`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_config.html#cfg-forcePasteAsPlainText) will be respected when internal and cross-editor pasting happens.
 
 API Changes:
 
 * [#1582](https://github.com/ckeditor/ckeditor-dev/issues/1582): The [`CKEDITOR.editor.addCommand`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_editor.html#method-addCommand) can accept [`CKEDITOR.command`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_command.html) instance as parameter.
+* [#1712](https://github.com/ckeditor/ckeditor-dev/issues/1712): [`extraPlugins`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_config.html#cfg-extraPlugins), [`removePlugins`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_config.html#cfg-removePlugins) and [`plugins`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_config.html#cfg-plugins) configuration options allow whitespace.
+* [#1724](https://github.com/ckeditor/ckeditor-dev/issues/1724): Added option to [`getClientRect`](https://docs.ckeditor.com/ckeditor4/latest/api/CKEDITOR_dom_element.html#method-getClientRect) function allowing to retrieve an absolute bounding rectangle of the element i.e. position relative to the upper-left corner of the topmost viewport.
+* [#1498](https://github.com/ckeditor/ckeditor-dev/issues/1498) : Added new method 'getClientRects()' to CKEDITOR.dom.range, which returns list of rects for each selected element.
+
+## CKEditor 4.9.2
+
+**Security Updates:**
+
+* Fixed XSS vulnerability in the [Enhanced Image](https://ckeditor.com/cke4/addon/image2) (`image2`) plugin reported by [Kyaw Min Thein](https://twitter.com/kyawminthein99).
+
+	Issue summary: It was possible to execute XSS inside CKEditor using the `<img>` tag and specially crafted HTML. Please note that the default presets (Basic/Standard/Full) do not include this plugin, so you are only at risk if you made a custom build and enabled this plugin.
+
+We would like to thank the [Drupal security team](https://www.drupal.org/drupal-security-team) for bringing this matter to our attention and coordinating the fix and release process!
 
 ## CKEditor 4.9.1
 
