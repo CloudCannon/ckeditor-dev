@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -78,10 +78,13 @@ CKEDITOR.lang[ 'fa' ] = {
 		width: 'عرض',
 		height: 'طول',
 		align: 'چینش',
-		alignLeft: 'چپ',
-		alignRight: 'راست',
-		alignCenter: 'وسط',
-		alignJustify: 'بلوک چین',
+		left: 'چپ',
+		right: 'راست',
+		center: 'وسط',
+		justify: 'بلوک چین',
+		alignLeft: 'چپ چین',
+		alignRight: 'راست چین',
+		alignCenter: 'Align Center', // MISSING
 		alignTop: 'بالا',
 		alignMiddle: 'میانه',
 		alignBottom: 'پائین',
@@ -89,6 +92,7 @@ CKEDITOR.lang[ 'fa' ] = {
 		invalidValue: 'مقدار نامعتبر.',
 		invalidHeight: 'ارتفاع باید یک عدد باشد.',
 		invalidWidth: 'عرض باید یک عدد باشد.',
+		invalidLength: 'Value specified for the "%1" field must be a positive number with or without a valid measurement unit (%2).', // MISSING
 		invalidCssLength: 'عدد تعیین شده برای فیلد "%1" باید یک عدد مثبت با یا بدون یک واحد اندازه گیری CSS معتبر باشد (px, %, in, cm, mm, em, ex, pt, or pc).',
 		invalidHtmlLength: 'عدد تعیین شده برای فیلد "%1" باید یک عدد مثبت با یا بدون یک واحد اندازه گیری HTML معتبر باشد (px or %).',
 		invalidInlineStyle: 'عدد تعیین شده برای سبک درون​خطی -Inline Style- باید دارای یک یا چند چندتایی با شکلی شبیه "name : value" که باید با یک ";" از هم جدا شوند.',
@@ -108,10 +112,36 @@ CKEDITOR.lang[ 'fa' ] = {
 			35: 'پایان',
 			36: 'خانه',
 			46: 'حذف',
+			112: 'F1', // MISSING
+			113: 'F2', // MISSING
+			114: 'F3', // MISSING
+			115: 'F4', // MISSING
+			116: 'F5', // MISSING
+			117: 'F6', // MISSING
+			118: 'F7', // MISSING
+			119: 'F8', // MISSING
+			120: 'F9', // MISSING
+			121: 'F10', // MISSING
+			122: 'F11', // MISSING
+			123: 'F12', // MISSING
+			124: 'F13', // MISSING
+			125: 'F14', // MISSING
+			126: 'F15', // MISSING
+			127: 'F16', // MISSING
+			128: 'F17', // MISSING
+			129: 'F18', // MISSING
+			130: 'F19', // MISSING
+			131: 'F20', // MISSING
+			132: 'F21', // MISSING
+			133: 'F22', // MISSING
+			134: 'F23', // MISSING
+			135: 'F24', // MISSING
 			224: 'Command' // MISSING
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Keyboard shortcut' // MISSING
+		keyboardShortcut: 'Keyboard shortcut', // MISSING
+
+		optionDefault: 'Default' // MISSING
 	}
 };

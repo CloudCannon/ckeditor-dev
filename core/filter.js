@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 ( function() {
@@ -300,7 +300,7 @@
 					if ( el.attributes[ 'data-cke-filter' ] == 'off' )
 						return false;
 
-					// (http://dev.ckeditor.com/ticket/10260) Don't touch elements like spans with data-cke-* attribute since they're
+					// (https://dev.ckeditor.com/ticket/10260) Don't touch elements like spans with data-cke-* attribute since they're
 					// responsible e.g. for placing markers, bookmarks, odds and stuff.
 					// We love 'em and we don't wanna lose anything during the filtering.
 					// '|' is to avoid tricky joints like data-="foo" + cke-="bar". Yes, they're possible.
@@ -347,7 +347,7 @@
 				if ( !element.parent )
 					continue;
 
-				// Handle custom elements as inline elements (http://dev.ckeditor.com/ticket/12683).
+				// Handle custom elements as inline elements (https://dev.ckeditor.com/ticket/12683).
 				parentDtd = DTD[ element.parent.name ] || DTD.span;
 
 				switch ( check.check ) {
@@ -2160,35 +2160,19 @@
 				return;
 			}
 
-			var widths = element.styles.border.match( /([\.\d]+\w+)/g ) || [ '0px' ];
-			switch ( widths.length ) {
-				case 1:
-					element.styles[ 'border-width' ] = widths[0];
-					break;
-				case 2:
-					mapStyles( [ 0, 1, 0, 1 ] );
-					break;
-				case 3:
-					mapStyles( [ 0, 1, 2, 1 ] );
-					break;
-				case 4:
-					mapStyles( [ 0, 1, 2, 3 ] );
-					break;
-			}
+			var borderSplittedStyles = CKEDITOR.tools.style.parse.border( element.styles.border );
 
-			element.styles[ 'border-style' ] = element.styles[ 'border-style' ] ||
-				( element.styles.border.match( /(none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset|initial|inherit)/ ) || [] )[ 0 ];
-			if ( !element.styles[ 'border-style' ] )
-				delete element.styles[ 'border-style' ];
+			if ( borderSplittedStyles.color ) {
+				element.styles[ 'border-color' ] = borderSplittedStyles.color;
+			}
+			if ( borderSplittedStyles.style ) {
+				element.styles[ 'border-style' ] = borderSplittedStyles.style;
+			}
+			if ( borderSplittedStyles.width ) {
+				element.styles[ 'border-width' ] = borderSplittedStyles.width;
+			}
 
 			delete element.styles.border;
-
-			function mapStyles( map ) {
-				element.styles['border-top-width'] = widths[ map[0] ];
-				element.styles['border-right-width'] = widths[ map[1] ];
-				element.styles['border-bottom-width'] = widths[ map[2] ];
-				element.styles['border-left-width'] = widths[ map[3] ];
-			}
 		},
 
 		listTypeToStyle: function( element ) {
@@ -2346,7 +2330,7 @@
  * editor features. To do that, use the {@link #disallowedContent} option.
  *
  * Read more in the [documentation](#!/guide/dev_acf)
- * and see the [SDK sample](http://sdk.ckeditor.com/samples/acf.html).
+ * and see the [SDK sample](https://sdk.ckeditor.com/samples/acf.html).
  *
  * @since 4.1
  * @cfg {CKEDITOR.filter.allowedContentRules/Boolean} [allowedContent=null]
@@ -2377,7 +2361,7 @@
  *		} );
  *
  * Read more in the [documentation](#!/guide/dev_acf-section-automatic-mode-and-allow-additional-tags%2Fproperties)
- * and see the [SDK sample](http://sdk.ckeditor.com/samples/acf.html).
+ * and see the [SDK sample](https://sdk.ckeditor.com/samples/acf.html).
  * See also {@link CKEDITOR.config#allowedContent} for more details.
  *
  * @since 4.1
@@ -2390,7 +2374,7 @@
  * Read more in the [Disallowed Content guide](#!/guide/dev_disallowed_content).
  *
  * Read more in the [documentation](#!/guide/dev_acf-section-automatic-mode-but-disallow-certain-tags%2Fproperties)
- * and see the [SDK sample](http://sdk.ckeditor.com/samples/acf.html).
+ * and see the [SDK sample](https://sdk.ckeditor.com/samples/acf.html).
  * See also {@link CKEDITOR.config#allowedContent} and {@link CKEDITOR.config#extraAllowedContent}.
  *
  * @since 4.4
