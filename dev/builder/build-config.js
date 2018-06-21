@@ -93,10 +93,12 @@ var CKBUILDER_CONFIG = {
 		undo: 1,
 		uploadimage: 1,
 		wysiwygarea: 1,
+		widget: 1,
 
 		cloudcannoncode: 1,
 		cloudcannonentities: 1,
 		cloudcannonimage: 1,
+		cloudcannonembed: 1,
 		cloudcannonlink: 1,
 		cloudcannonpreventunnecessarynbsp: 1,
 		cloudcannontable: 1

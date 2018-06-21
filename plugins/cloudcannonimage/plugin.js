@@ -2,6 +2,9 @@
 
 (function () {
 	CKEDITOR.plugins.add("cloudcannonimage", {
+		icons: "image", // %REMOVE_LINE_CORE%
+		hidpi: true, // %REMOVE_LINE_CORE%
+
 		init: function (editor) {
 			editor.addCommand("image", {
 				exec: function (editor) {
