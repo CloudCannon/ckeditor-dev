@@ -5,9 +5,9 @@ CKEDITOR.plugins.add("cloudcannonembed", {
 
 	init: function (editor) {
 		function b64DecodeUnicode(str) {
-			return decodeURIComponent(atob(str).split('').map(function (c) {
-				return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-			}).join(''));
+			return decodeURIComponent(atob(str).split("").map(function (c) {
+				return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+			}).join(""));
 		}
 
 		// Prevent filtering of [data-cms-embed] elements
@@ -19,7 +19,7 @@ CKEDITOR.plugins.add("cloudcannonembed", {
 
 		editor.widgets.add("cloudcannonembed", {
 			button: "Embed",
-			template: '<div class="cms-embed" data-cms-embed></div>',
+			template: "<div class=\"cms-embed\" data-cms-embed></div>",
 			draggable: true,
 
 			init: function () {
@@ -36,7 +36,7 @@ CKEDITOR.plugins.add("cloudcannonembed", {
 			},
 
 			upcast: function (element) {
-				return element.name == "div" && element.hasClass("cms-embed");
+				return element.name === "div" && element.hasClass("cms-embed");
 			}
 		});
 	}
