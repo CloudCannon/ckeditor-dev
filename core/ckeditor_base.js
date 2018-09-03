@@ -123,7 +123,7 @@ if ( !window.CKEDITOR ) {
 					var scripts = document.getElementsByTagName( 'script' );
 
 					for ( var i = 0; i < scripts.length; i++ ) {
-						var match = scripts[ i ].src.match( basePathSrcPattern );
+						var match = scripts[ i ].src && scripts[ i ].src.match( basePathSrcPattern );
 
 						if ( match ) {
 							path = match[ 1 ];
