@@ -49,7 +49,7 @@ CKEDITOR.plugins.add( 'panelbutton', {
 				};
 				panelDefinition.toolbarRelated = true;
 
-				this.hasArrow = definition.hasOwnProperty("hasArrow") ? definition.hasArrow : true;
+				this.hasArrow = 'listbox';
 
 				this.click = clickFn;
 

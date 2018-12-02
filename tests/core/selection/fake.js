@@ -1083,7 +1083,7 @@ bender.test( {
 		editor.setReadOnly( true );
 
 		bot.setData( '<p>[[placeholder]]</p>', function() {
-			var widget = editor.widgets.instances[ 0 ],
+			var widget = bender.tools.objToArray( editor.widgets.instances )[ 0 ],
 				domEvent = {
 					getKey: function() {
 						return false;
@@ -1095,6 +1095,37 @@ bender.test( {
 			editor.fire( 'key', { keyCode: 46, domEvent: domEvent } ); // delete
 
 			assert.areEqual( '<p>[[placeholder]]</p>', editor.getData() );
+		} );
+	},
+
+	// (#898)
+	'test hidden selection container styles': function() {
+		var bot = this.editorBot,
+			editor = bot.editor;
+
+		bot.setData( '<p>[<span id="bar">bar</span>]</p>', function() {
+			var hiddenSelectionContainer, expected;
+
+			editor.getSelection().fake( editor.document.getById( 'bar' ), '<i>foo</i>' );
+
+			hiddenSelectionContainer = editor.editable().findOne( '[data-cke-hidden-sel]' );
+
+			if ( CKEDITOR.env.ie && CKEDITOR.env.version < 14 ) {
+				assert.areEqual( 'none', hiddenSelectionContainer.getStyle( 'display' ) );
+			} else {
+				expected = {
+					position: 'fixed',
+					top: '0px',
+					left: '-1000px',
+					width: '0px',
+					height: '0px',
+					overflow: 'hidden'
+				};
+
+				for ( var key in expected ) {
+					assert.areEqual( expected[ key ] , hiddenSelectionContainer.getComputedStyle( key ) );
+				}
+			}
 		} );
 	}
 } );

@@ -492,20 +492,20 @@
 
 	function loadPlugins( editor ) {
 		var config = editor.config,
-			plugins = config.plugins,
-			extraPlugins = config.extraPlugins,
-			removePlugins = config.removePlugins;
+			plugins = parsePluginsOption( config.plugins ),
+			extraPlugins = parsePluginsOption( config.extraPlugins ),
+			removePlugins = parsePluginsOption( config.removePlugins );
 
 		if ( extraPlugins ) {
 			// Remove them first to avoid duplications.
-			var extraRegex = new RegExp( '(?:^|,)(?:' + extraPlugins.replace( /\s*,\s*/g, '|' ) + ')(?=,|$)', 'g' );
+			var extraRegex = new RegExp( '(?:^|,)(?:' + extraPlugins.replace( /,/g, '|' ) + ')(?=,|$)', 'g' );
 			plugins = plugins.replace( extraRegex, '' );
 
 			plugins += ',' + extraPlugins;
 		}
 
 		if ( removePlugins ) {
-			var removeRegex = new RegExp( '(?:^|,)(?:' + removePlugins.replace( /\s*,\s*/g, '|' ) + ')(?=,|$)', 'g' );
+			var removeRegex = new RegExp( '(?:^|,)(?:' + removePlugins.replace( /,/g, '|' ) + ')(?=,|$)', 'g' );
 			plugins = plugins.replace( removeRegex, '' );
 		}
 
@@ -524,21 +524,7 @@
 			// The list of URLs to language files.
 			var languageFiles = [];
 
-			/**
-			 * An object that contains references to all plugins used by this
-			 * editor instance.
-			 *
-			 *		alert( editor.plugins.dialog.path ); // e.g. 'http://example.com/ckeditor/plugins/dialog/'
-			 *
-			 *		// Check if a plugin is available.
-			 *		if ( editor.plugins.image ) {
-			 *			...
-			 *		}
-			 *
-			 * @readonly
-			 * @property {Object}
-			 */
-			editor.plugins = plugins;
+			editor.plugins = CKEDITOR.tools.extend( {}, editor.plugins, plugins );
 
 			// Loop through all plugins, to build the list of language
 			// files to get loaded.
@@ -634,6 +620,20 @@
 				CKEDITOR.fire( 'instanceLoaded', null, editor );
 			} );
 		} );
+
+		// Parse *plugins option into a string (#1802).
+		function parsePluginsOption( option ) {
+			if ( !option ) {
+				return '';
+			}
+
+			if ( CKEDITOR.tools.isArray( option ) ) {
+				option = option.join( ',' );
+			}
+
+			// We have to remove whitespaces (#1712).
+			return option.replace( /\s/g, '' );
+		}
 	}
 
 	// Send to data output back to editor's associated element.
@@ -731,8 +731,58 @@
 
 	CKEDITOR.tools.extend( CKEDITOR.editor.prototype, {
 		/**
+		 * An object that contains references to all plugins used by this
+		 * editor instance.
+		 *
+		 *		alert( editor.plugins.dialog.path ); // e.g. 'http://example.com/ckeditor/plugins/dialog/'
+		 *
+		 *		// Check if a plugin is available.
+		 *		if ( editor.plugins.image ) {
+		 *			...
+		 *		}
+		 *
+		 * @readonly
+		 * @property {CKEDITOR.editor.plugins}
+		 */
+		plugins: {
+			/**
+			 * Checks the plugin for conflicts with other plugins.
+			 *
+			 * If a conflict occurs, this function will send a {@link CKEDITOR#warn console warning}
+			 * with the `editor-plugin-conflict` error code. The order of the `conflicted` names is respected
+			 * where the first conflicted plugin has the highest priority and will be used in a warning
+			 * message.
+			 *
+			 * ```js
+			 * editor.plugins.detectConflict( 'image', [ 'image2', 'easyimage' ] );
+			 * ```
+			 *
+			 * @member CKEDITOR.editor.plugins
+			 * @since 4.10.1
+			 * @param {String} plugin Current plugin name.
+			 * @param {String[]} conflicted Names of plugins that conflict with the current plugin.
+			 * @return {Boolean} Returns `true` if there is a conflict. Returns `false` otherwise.
+			 */
+			detectConflict: function( plugin, conflicted ) {
+				for ( var i = 0; i < conflicted.length; i++ ) {
+					var pluginName = conflicted[ i ];
+
+					if ( this[ pluginName ] ) {
+						CKEDITOR.warn( 'editor-plugin-conflict', {
+							plugin: plugin,
+							replacedWith: pluginName
+						} );
+
+						return true;
+					}
+				}
+
+				return false;
+			}
+		},
+		/**
 		 * Adds a command definition to the editor instance. Commands added with
-		 * this function can be executed later with the <code>{@link #execCommand}</code> method.
+		 * this function can be executed later with the {@link #execCommand} method.
 		 *
 		 * 		editorInstance.addCommand( 'sample', {
 		 * 			exec: function( editor ) {
@@ -740,12 +790,14 @@
 		 * 			}
 		 * 		} );
 		 *
+		 * Since 4.10.0 this method also accepts a {@link CKEDITOR.command} instance as a parameter.
+		 *
 		 * @param {String} commandName The indentifier name of the command.
-		 * @param {CKEDITOR.commandDefinition} commandDefinition The command definition.
+		 * @param {CKEDITOR.commandDefinition/CKEDITOR.command} commandDefinition The command definition or a `CKEDITOR.command` instance.
 		 */
 		addCommand: function( commandName, commandDefinition ) {
 			commandDefinition.name = commandName.toLowerCase();
-			var cmd = new CKEDITOR.command( this, commandDefinition );
+			var cmd = commandDefinition instanceof CKEDITOR.command ? commandDefinition : new CKEDITOR.command( this, commandDefinition );
 
 			// Update command when mode is set.
 			// This guarantees that commands added before first editor#mode
@@ -834,6 +886,9 @@
 		 * element with the instance content.
 		 */
 		destroy: function( noUpdate ) {
+			var filters = CKEDITOR.filter.instances,
+				self = this;
+
 			this.fire( 'beforeDestroy' );
 
 			!noUpdate && updateEditorElement.call( this );
@@ -841,9 +896,16 @@
 			this.editable( null );
 
 			if ( this.filter ) {
-				this.filter.destroy();
 				delete this.filter;
 			}
+
+			// Destroy filters attached to the editor (#1722).
+			CKEDITOR.tools.array.forEach( CKEDITOR.tools.objectKeys( filters ), function( id ) {
+				var filter = filters[ id ];
+				if ( self === filter.editor ) {
+					filter.destroy();
+				}
+			} );
 
 			delete this.activeFilter;
 
@@ -1368,28 +1430,35 @@
 		 *
 		 * @since 4.6.0
 		 * @param {CKEDITOR.command/String} command The {@link CKEDITOR.command} instance or a string with the command name.
-		 * @returns {Number/null} The keystroke assigned to the provided command or `null` if there is no keystroke.
+		 * @param {Boolean} [all=false] If `true`, the function will return an array of assigned keystrokes.
+		 * Available since 4.11.0.
+		 * @returns {Number/Number[]/null} Depending on the `all` parameter value:
+		 *
+		 * * `false` &ndash; The first keystroke assigned to the provided command or `null` if there is no keystroke.
+		 * * `true` &ndash; An array of all assigned keystrokes or an empty array if there is no keystroke.
 		 */
-		getCommandKeystroke: function( command ) {
-			var commandInstance = ( typeof command === 'string' ? this.getCommand( command ) : command );
+		getCommandKeystroke: function( command, all ) {
+			var commandInstance = ( typeof command === 'string' ? this.getCommand( command ) : command ),
+				ret = [];
 
 			if ( commandInstance ) {
 				var commandName = CKEDITOR.tools.object.findKey( this.commands, commandInstance ),
-					keystrokes = this.keystrokeHandler.keystrokes,
-					key;
+					keystrokes = this.keystrokeHandler.keystrokes;
 
 				// Some commands have a fake keystroke - for example CUT/COPY/PASTE commands are handled natively.
+				// If fake key was used, the regular keystrokes should be skipped.
 				if ( commandInstance.fakeKeystroke ) {
-					return commandInstance.fakeKeystroke;
-				}
-
-				for ( key in keystrokes ) {
-					if ( keystrokes.hasOwnProperty( key ) && keystrokes[ key ] == commandName ) {
-						return key;
+					ret.push( commandInstance.fakeKeystroke );
+				} else {
+					for ( var i in keystrokes ) {
+						if ( keystrokes[ i ] === commandName ) {
+							ret.push( i );
+						}
 					}
 				}
 			}
-			return null;
+
+			return all ? ret : ( ret[ 0 ] || null );
 		},
 
 		/**
@@ -1450,7 +1519,7 @@
 		 * However, the dynamic Enter modes can be changed during runtime by using this method, to reflect the selection context.
 		 * For example, if selection is moved to the {@link CKEDITOR.plugins.widget widget}'s nested editable which
 		 * is a {@link #blockless blockless one}, then the active Enter modes should be changed to {@link CKEDITOR#ENTER_BR}
-		 * (in this case [Widget System](#!/guide/dev_widgets) takes care of that).
+		 * (in this case {@glink guide/dev_widgets Widget System} takes care of that).
 		 *
 		 * **Note:** This method should not be used to configure the editor &ndash; use {@link CKEDITOR.config#enterMode} and
 		 * {@link CKEDITOR.config#shiftEnterMode} instead. This method should only be used to dynamically change
@@ -1561,7 +1630,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  * If `true`, makes the editor start in read-only state. Otherwise, it will check
  * if the linked `<textarea>` element has the `disabled` attribute.
  *
- * Read more in the [documentation](#!/guide/dev_readonly)
+ * Read more in the {@glink guide/dev_readonly documentation}
  * and see the [SDK sample](https://sdk.ckeditor.com/samples/readonly.html).
  *
  *		config.readOnly = true;

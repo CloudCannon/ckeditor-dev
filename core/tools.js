@@ -580,6 +580,19 @@
 		},
 
 		/**
+		 * Creates a {@link CKEDITOR.tools.buffers.throttle throttle buffer} instance.
+		 *
+		 * See the {@link CKEDITOR.tools.buffers.throttle#method-input input method's} documentation for example listings.
+		 *
+		 * @since 4.10.0
+		 * @inheritdoc CKEDITOR.tools.buffers.throttle#method-constructor
+		 * @returns {CKEDITOR.tools.buffers.throttle}
+		 */
+		throttle: function( minInterval, output, contextObj ) {
+			return new this.buffers.throttle( minInterval, output, contextObj );
+		},
+
+		/**
 		 * Removes spaces from the start and the end of a string. The following
 		 * characters are removed: space, tab, line break, line feed.
 		 *
@@ -856,10 +869,13 @@
 		/**
 		 * Converts the specified CSS length value to the calculated pixel length inside this page.
 		 *
+		 * Since 4.11.0 it also returns negative values.
+		 *
 		 * **Note:** Percentage-based value is left intact.
 		 *
 		 * @method
 		 * @param {String} cssLength CSS length value.
+		 * @returns {Number/String} A number representing the length in pixels or a string with a percentage value.
 		 */
 		convertToPx: ( function() {
 			var calculator;
@@ -873,8 +889,20 @@
 				}
 
 				if ( !( /%$/ ).test( cssLength ) ) {
+					var isNegative = parseFloat( cssLength ) < 0,
+						ret;
+
+					if ( isNegative ) {
+						cssLength = cssLength.replace( '-', '' );
+					}
+
 					calculator.setStyle( 'width', cssLength );
-					return calculator.$.clientWidth;
+					ret = calculator.$.clientWidth;
+
+					if ( isNegative ) {
+						return -ret;
+					}
+					return ret;
 				}
 
 				return cssLength;
@@ -1186,75 +1214,16 @@
 		},
 
 		/**
-		 * Buffers `input` events (or any `input` calls)
-		 * and triggers `output` not more often than once per `minInterval`.
+		 * Creates an {@link CKEDITOR.tools.buffers.event events buffer} instance.
 		 *
-		 *		var buffer = CKEDITOR.tools.eventsBuffer( 200, function() {
-		 *			console.log( 'foo!' );
-		 *		} );
-		 *
-		 *		buffer.input();
-		 *		// 'foo!' logged immediately.
-		 *		buffer.input();
-		 *		// Nothing logged.
-		 *		buffer.input();
-		 *		// Nothing logged.
-		 *		// ... after 200ms a single 'foo!' will be logged.
-		 *
-		 * Can be easily used with events:
-		 *
-		 *		var buffer = CKEDITOR.tools.eventsBuffer( 200, function() {
-		 *			console.log( 'foo!' );
-		 *		} );
-		 *
-		 *		editor.on( 'key', buffer.input );
-		 *		// Note: There is no need to bind buffer as a context.
+		 * See the {@link CKEDITOR.tools.buffers.event#method-input input method's} documentation for example code listings.
 		 *
 		 * @since 4.2.1
-		 * @param {Number} minInterval Minimum interval between `output` calls in milliseconds.
-		 * @param {Function} output Function that will be executed as `output`.
-		 * @param {Object} [scopeObj] The object used to scope the listener call (the `this` object).
-		 * @returns {Object}
-		 * @returns {Function} return.input Buffer's input method.
-		 * @returns {Function} return.reset Resets buffered events &mdash; `output` will not be executed
-		 * until next `input` is triggered.
+		 * @inheritdoc CKEDITOR.tools.buffers.event#method-constructor
+		 * @returns {CKEDITOR.tools.buffers.event}
 		 */
-		eventsBuffer: function( minInterval, output, scopeObj ) {
-			var scheduled,
-				lastOutput = 0;
-
-			function triggerOutput() {
-				lastOutput = ( new Date() ).getTime();
-				scheduled = false;
-				if ( scopeObj ) {
-					output.call( scopeObj );
-				} else {
-					output();
-				}
-			}
-
-			return {
-				input: function() {
-					if ( scheduled )
-						return;
-
-					var diff = ( new Date() ).getTime() - lastOutput;
-
-					// If less than minInterval passed after last check,
-					// schedule next for minInterval after previous one.
-					if ( diff < minInterval )
-						scheduled = setTimeout( triggerOutput, minInterval - diff );
-					else
-						triggerOutput();
-				},
-
-				reset: function() {
-					if ( scheduled )
-						clearTimeout( scheduled );
-
-					scheduled = lastOutput = 0;
-				}
-			};
+		eventsBuffer: function( minInterval, output, contextObj ) {
+			return new this.buffers.event( minInterval, output, contextObj );
 		},
 
 		/**
@@ -1317,15 +1286,19 @@
 		 * members as {@link #keystrokeToArray}, but the returned object contains strings of
 		 * keys joined with "+" rather than an array of keystrokes.
 		 *
-		 * 		var lang = editor.lang.common.keyboard;
-		 * 		var shortcut = CKEDITOR.tools.keystrokeToString( lang, CKEDITOR.CTRL + 88 );
-		 * 		console.log( shortcut.display ); // 'Ctrl + X', on Mac '⌘ + X'.
-		 * 		console.log( shortcut.aria ); // 'Ctrl + X', on Mac 'Cmd + X'.
+		 * ```javascript
+		 * var lang = editor.lang.common.keyboard;
+		 * var shortcut = CKEDITOR.tools.keystrokeToString( lang, CKEDITOR.CTRL + 88 );
+		 * console.log( shortcut.display ); // 'Ctrl + X', on Mac '⌘ + X'.
+		 * console.log( shortcut.aria ); // 'Ctrl + X', on Mac 'Cmd + X'.
+		 * ```
 		 *
 		 * @since 4.6.0
 		 * @param {Object} lang A language object with the key name translation.
 		 * @param {Number} keystroke The keystroke to convert.
-		 * @returns {{display: String, aria: String}} See {@link #keystrokeToArray}.
+		 * @returns {Object} See {@link #keystrokeToArray}.
+		 * @returns {String} return.display
+		 * @returns {String} return.aria
 		 */
 		keystrokeToString: function( lang, keystroke ) {
 			var ret = this.keystrokeToArray( lang, keystroke );
@@ -1337,23 +1310,23 @@
 		},
 
 		/**
-		 * Converts a keystroke to its string representation. Returns an object with two fields:
+		 * Converts a keystroke to its string representation.
 		 *
-		 * * `display` &ndash; An array of strings that should be used for visible labels.
-		 * For Mac devices it uses `⌥` for <kbd>Alt</kbd>, `⇧` for <kbd>Shift</kbd> and
-		 * `⌘` for <kbd>Command</kbd>.
-		 * * `aria` &ndash; An array of strings that should be used for ARIA descriptions.
-		 * It does not use special characters such as `⌥`, `⇧` or `⌘`.
-		 *
-		 * 		var lang = editor.lang.common.keyboard;
-		 * 		var shortcut = CKEDITOR.tools.keystrokeToArray( lang, CKEDITOR.CTRL + 88 );
-		 * 		console.log( shortcut.display ); // [ 'CTRL', 'X' ], on Mac [ '⌘', 'X' ].
-		 * 		console.log( shortcut.aria ); // [ 'CTRL', 'X' ], on Mac [ 'COMMAND', 'X' ].
+		 * ```javascript
+		 * var lang = editor.lang.common.keyboard;
+		 * var shortcut = CKEDITOR.tools.keystrokeToArray( lang, CKEDITOR.CTRL + 88 );
+		 * console.log( shortcut.display ); // [ 'CTRL', 'X' ], on Mac [ '⌘', 'X' ].
+		 * console.log( shortcut.aria ); // [ 'CTRL', 'X' ], on Mac [ 'COMMAND', 'X' ].
+		 * ```
 		 *
 		 * @since 4.8.0
 		 * @param {Object} lang A language object with the key name translation.
 		 * @param {Number} keystroke The keystroke to convert.
-		 * @returns {{display: String[], aria: String[]}}
+		 * @returns {Object}
+		 * @returns {String[]} return.display An array of strings that should be used for visible labels.
+		 * For Mac devices it uses `⌥` for <kbd>Alt</kbd>, `⇧` for <kbd>Shift</kbd> and `⌘` for <kbd>Command</kbd>.
+		 * @returns {String[]} return.aria An array of strings that should be used for ARIA descriptions.
+		 * It does not use special characters such as `⌥`, `⇧` or `⌘`.
 		 */
 		keystrokeToArray: function( lang, keystroke ) {
 			var special = keystroke & 0xFF0000,
@@ -2152,6 +2125,54 @@
 
 				return copy1;
 			}
+		},
+
+		/**
+		 * Converts relative positions inside a DOM rectangle into absolute ones using the given window as context.
+		 * "Absolute" here means in relation to the upper-left corner of the topmost viewport.
+		 *
+		 * @since 4.10.0
+		 * @param { CKEDITOR.dom.window } window The window containing an element for which the rectangle is passed.
+		 * @param { CKEDITOR.dom.rect } rect A rectangle with a relative position.
+		 * @returns { CKEDITOR.dom.rect } A rectangle with an absolute position.
+		 */
+		getAbsoluteRectPosition: function( window, rect ) {
+			var newRect = CKEDITOR.tools.copy( rect );
+			appendParentFramePosition( window.getFrame() );
+
+			var winGlobalScroll = CKEDITOR.document.getWindow().getScrollPosition();
+
+			newRect.top += winGlobalScroll.y;
+			newRect.left += winGlobalScroll.x;
+
+			// If there is no x or y, e.g. Microsoft browsers, don't return them, otherwise we will have rect.x = NaN.
+			if ( ( 'x' in newRect ) && ( 'y' in newRect ) ) {
+				newRect.y += winGlobalScroll.y;
+				newRect.x += winGlobalScroll.x;
+			}
+
+			newRect.right = newRect.left + newRect.width;
+			newRect.bottom = newRect.top + newRect.height;
+
+			return newRect;
+
+			function appendParentFramePosition( frame ) {
+				if ( !frame ) {
+					return;
+				}
+
+				var frameRect = frame.getClientRect();
+
+				newRect.top += frameRect.top;
+				newRect.left += frameRect.left;
+
+				if ( ( 'x' in newRect ) && ( 'y' in newRect ) ) {
+					newRect.x += frameRect.x;
+					newRect.y += frameRect.y;
+				}
+
+				appendParentFramePosition( frame.getWindow().getFrame() );
+			}
 		}
 	};
 
@@ -2180,6 +2201,241 @@
 
 		return result;
 	}
+
+	/**
+	 * Buffers `input` events (or any `input` calls) and triggers `output` not more often than once per `minInterval`.
+	 *
+	 * @since 4.11.0
+	 * @class CKEDITOR.tools.buffers.event
+	 * @member CKEDITOR.tools.buffers
+	 * @constructor Creates a new instance of the buffer.
+	 * @param {Number} minInterval The minimum interval between `output` calls in milliseconds.
+	 * @param {Function} output The function that will be executed as `output`.
+	 * @param {Object} [contextObj] The object used as context to the listener call (the `this` object).
+	 */
+	function EventsBuffer( minInterval, output, context ) {
+		/**
+		 * The minimal interval (in milliseconds) between the calls.
+		 *
+		 * @private
+		 * @readonly
+		 * @property {Number}
+		 */
+		this._minInterval = minInterval;
+
+		/**
+		 * The variable to be used as a context for the output calls.
+		 *
+		 * @private
+		 * @readonly
+		 * @property {Mixed}
+		 */
+		this._context = context;
+
+		/**
+		 * The ID of a delayed function call that will be called after the current interval frame.
+		 *
+		 * @private
+		 */
+		this._scheduledTimer = 0;
+
+		this._lastOutput = 0;
+
+		this._output = CKEDITOR.tools.bind( output, context || {} );
+
+		var that = this;
+
+		/**
+		 * Acts as a proxy to the `output` function given in the consturctor, providing function throttling.
+		 *
+		 * Guarantees that the `output` function does not get called more often than
+		 * indicated by the {@link #_minInterval}.
+		 *
+		 * The first `input` call is always executed asynchronously which means that the `output`
+		 * call will be executed immediately.
+		 *
+		 * ```javascript
+		 *	var buffer = new CKEDITOR.tools.buffers.event( 200, function() {
+		 *		console.log( 'foo!' );
+		 *	} );
+		 *
+		 *	buffer.input();
+		 *	// 'foo!' logged immediately.
+		 *	buffer.input();
+		 *	// Nothing logged.
+		 *	buffer.input();
+		 *	// Nothing logged.
+		 *	// … after 200ms a single 'foo!' will be logged.
+		 * ```
+		 *
+		 * Can be easily used with events:
+		 *
+		 * ```javascript
+		 *	var buffer = new CKEDITOR.tools.buffers.event( 200, function() {
+		 *		console.log( 'foo!' );
+		 *	} );
+		 *
+		 *	editor.on( 'key', buffer.input );
+		 *	// Note: There is no need to bind the buffer as a context.
+		 * ```
+		 *
+		 * @method
+		 * @param {Mixed[]} [args]
+		 */
+		this.input = function() {
+			// NOTE: This function needs to be created for each instance,
+			// as there's a common practice to pass `buffer.input`
+			// directly to a listener, and overwrite context object.
+			if ( that._scheduledTimer && that._reschedule() === false ) {
+				return;
+			}
+
+			var diff = ( new Date() ).getTime() - that._lastOutput;
+
+			// If less than minInterval passed after last check,
+			// schedule next for minInterval after previous one.
+			if ( diff < that._minInterval ) {
+				that._scheduledTimer = setTimeout( triggerOutput, that._minInterval - diff );
+			} else {
+				triggerOutput();
+			}
+
+			function triggerOutput() {
+				that._lastOutput = ( new Date() ).getTime();
+				that._scheduledTimer = 0;
+
+				that._call();
+			}
+		};
+	}
+
+	EventsBuffer.prototype = {
+		/**
+		 * Resets the buffer state and cancels any pending calls.
+		 */
+		reset: function() {
+			this._lastOutput = 0;
+			this._clearTimer();
+		},
+		/**
+		 * Called when the function call should be rescheduled.
+		 *
+		 * @private
+		 * @returns {Boolean/undefined} If it returns `false`, the the parent call will be stopped.
+		 */
+		_reschedule: function() {
+			return false;
+		},
+		/**
+		 * Performs an actual call.
+		 *
+		 * @private
+		 */
+		_call: function() {
+			this._output();
+		},
+		/**
+		 * Cancels the deferred timeout.
+		 *
+		 * @private
+		 */
+		_clearTimer: function() {
+			if ( this._scheduledTimer ) {
+				clearTimeout( this._scheduledTimer );
+			}
+
+			this._scheduledTimer = 0;
+		}
+	};
+
+	/**
+	 * Throttles `input` events (or any `input` calls) and triggers `output` not more often than once per `minInterval`.
+	 *
+	 * Unlike {@link CKEDITOR.tools.buffers.event} this class allows passing custom parameters into the {@link #input}
+	 * function. For more information see the
+	 * [Throttling function issue](https://github.com/ckeditor/ckeditor-dev/issues/1993).
+	 *
+	 * @since 4.11.0
+	 * @class CKEDITOR.tools.buffers.throttle
+	 * @extends CKEDITOR.tools.buffers.event
+	 */
+	function ThrottleBuffer( minInterval, output, context ) {
+		EventsBuffer.call( this, minInterval, output, context );
+
+		/**
+		 * Arguments for the last scheduled call.
+		 *
+		 * @property {Mixed[]}
+		 * @private
+		 */
+		this._args = [];
+
+		var that = this;
+
+		/**
+		 * Acts as a proxy to the `output` function given in the constructor, providing function throttling.
+		 *
+		 * Guarantees that the `output` function does not get called more often than
+		 * indicated by the {@link #_minInterval}.
+		 *
+		 * If multiple calls occur within a single `minInterval` time,
+		 * the most recent `input` call with its arguments will be used to schedule
+		 * the next `output` call, and the previous throttled calls will be discarded.
+		 *
+		 * The first `input` call is always executed asynchronously which means that the `output`
+		 * call will be executed immediately.
+		 *
+		 * ```javascript
+		 *	var buffer = new CKEDITOR.tools.buffers.throttle( 200, function( message ) {
+		 *		console.log( message );
+		 *	} );
+		 *
+		 *	buffer.input( 'foo!' );
+		 *	// 'foo!' logged immediately.
+		 *	buffer.input( 'bar!' );
+		 *	// Nothing logged.
+		 *	buffer.input( 'baz!' );
+		 *	// Nothing logged.
+		 *	// … after 200ms a single 'baz!' will be logged.
+		 * ```
+		 *
+		 * It can be easily used with events:
+		 *
+		 * ```javascript
+		 *	var buffer = new CKEDITOR.tools.buffers.throttle( 200, function( evt ) {
+		 *		console.log( evt.data.text );
+		 *	} );
+		 *
+		 *	editor.on( 'key', buffer.input );
+		 *	// Note: There is no need to bind the buffer as a context.
+		 * ```
+		 * @method
+		 * @param {Mixed[]} [args]
+		 */
+		this.input = CKEDITOR.tools.override( this.input, function( originalInput ) {
+			return function() {
+				that._args = Array.prototype.slice.call( arguments );
+
+				originalInput.call( this );
+			};
+		} );
+	}
+
+	ThrottleBuffer.prototype = CKEDITOR.tools.prototypedCopy( EventsBuffer.prototype );
+
+	ThrottleBuffer.prototype._reschedule = function() {
+		if ( this._scheduledTimer ) {
+			this._clearTimer();
+		}
+	};
+
+	ThrottleBuffer.prototype._call = function() {
+		this._output.apply( this._context, this._args );
+	};
+
+	CKEDITOR.tools.buffers = {};
+	CKEDITOR.tools.buffers.event = EventsBuffer;
+	CKEDITOR.tools.buffers.throttle = ThrottleBuffer;
 
 	/**
 	 * @member CKEDITOR.tools.array

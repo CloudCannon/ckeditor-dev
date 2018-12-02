@@ -532,8 +532,12 @@
 		},
 
 		'test eventsBuffer': function() {
+			assert.isTrue( CKEDITOR.tools.eventsBuffer( 200, function() {} ) instanceof CKEDITOR.tools.buffers.event );
+		},
+
+		'test buffers.event': function() {
 			var output = 0,
-				buffer = CKEDITOR.tools.eventsBuffer( 200, function() {
+				buffer = new CKEDITOR.tools.buffers.event( 200, function() {
 					output++;
 				} );
 
@@ -578,9 +582,9 @@
 			}, 100 );
 		},
 
-		'test eventsBuffer.reset': function() {
+		'test buffers.event.reset': function() {
 			var output = 0,
-				buffer = CKEDITOR.tools.eventsBuffer( 100, function() {
+				buffer = new CKEDITOR.tools.buffers.event( 100, function() {
 					output++;
 				} );
 
@@ -602,10 +606,10 @@
 			}, 110 );
 		},
 
-		'test eventsBuffer contex': function() {
+		'test buffers.event context': function() {
 			var spy = sinon.spy(),
 				ctxObj = {},
-				buffer = CKEDITOR.tools.eventsBuffer( 100, spy, ctxObj );
+				buffer = new CKEDITOR.tools.buffers.event( 100, spy, ctxObj );
 
 			buffer.input();
 
@@ -626,6 +630,106 @@
 			assert.areSame( 'Ab', c( 'ab', true ) );
 			assert.areSame( 'AB', c( 'aB', true ) );
 			assert.areSame( 'ABcDeF', c( 'aBcDeF', true ) );
+		},
+
+		'test throttle': function() {
+			assert.isTrue( CKEDITOR.tools.throttle( 200, function() {} ) instanceof CKEDITOR.tools.buffers.throttle );
+		},
+
+		'test buffers.throttle': function() {
+			var foo = 'foo',
+				baz = 'baz',
+				inputSpy = sinon.spy(),
+				buffer = new CKEDITOR.tools.buffers.throttle( 200, inputSpy );
+
+			buffer.input( foo );
+
+			assert.areSame( 1, inputSpy.callCount, 'Call count after the first call' );
+			assert.isTrue( inputSpy.calledWithExactly( foo ), 'Call argument after the first call' );
+
+			buffer.input( baz );
+
+			assert.areSame( 1, inputSpy.callCount, 'Call count after the second call' );
+			assert.isTrue( inputSpy.calledWithExactly( foo ), 'Call argument the after second call' );
+
+			wait( function() {
+				assert.areSame( 1, inputSpy.callCount, 'Call count after the second call timeout (1st)' );
+				assert.isTrue( inputSpy.calledWithExactly( foo ), 'Call argument after the second call timeout (1st)' );
+
+				wait( function() {
+					assert.areSame( 2, inputSpy.callCount, 'Call count after the second call timeout (2nd)' );
+					assert.isTrue( inputSpy.getCall( 1 ).calledWithExactly( baz ), 'Call argument after the second call timeout (2nd)' );
+
+					buffer.input( foo );
+
+					wait( function() {
+						assert.areSame( 3, inputSpy.callCount, 'Call count after the third call' );
+						assert.isTrue( inputSpy.getCall( 2 ).calledWithExactly( foo ), 'Call argument after the third call' );
+
+						// Check that input triggered after 70ms from previous
+						// buffer.input will trigger output after next 140ms (200-70).
+						wait( function() {
+							buffer.input( baz );
+
+							assert.areSame( 3, inputSpy.callCount, 'Call count after the fourth call' );
+
+							wait( function() {
+								assert.areSame( 4, inputSpy.callCount, 'Call count after the fourth call timeout' );
+								assert.isTrue( inputSpy.getCall( 3 ).calledWithExactly( baz ), 'Call argument after the fourth call timeout' );
+							}, 140 );
+						}, 70 );
+					}, 210 );
+				}, 110 );
+			}, 100 );
+		},
+
+		'test buffers.throttle always uses the most recent argument': function() {
+			var input = sinon.stub(),
+				buffer = new CKEDITOR.tools.buffers.throttle( 50, input );
+
+			buffer.input( 'first' );
+
+			assert.areSame( 1, input.callCount, 'Call count after the first call' );
+			sinon.assert.calledWithExactly( input.getCall( 0 ), 'first' );
+
+			buffer.input( 'second' );
+
+			buffer.input( 'third' );
+
+			wait( function() {
+				assert.areSame( 2, input.callCount, 'Call count after the timeout' );
+				sinon.assert.calledWithExactly( input.getCall( 1 ), 'third' );
+			}, 100 );
+		},
+
+		'test buffers.throttle.reset': function() {
+			var inputSpy = sinon.spy(),
+				buffer = new CKEDITOR.tools.buffers.throttle( 100, inputSpy );
+
+			assert.areSame( 0, inputSpy.callCount, 'Initial call count' );
+
+			buffer.input();
+
+			assert.areSame( 1, inputSpy.callCount, 'Call count after the first call' );
+
+			buffer.input();
+			buffer.reset();
+
+			assert.areSame( 1, inputSpy.callCount, 'Call count after reset' );
+
+			buffer.input();
+
+			assert.areSame( 2, inputSpy.callCount, 'Call count after the second call' );
+		},
+
+		'test buffers.throttle context': function() {
+			var spy = sinon.spy(),
+				ctxObj = {},
+				buffer = new CKEDITOR.tools.buffers.throttle( 100, spy, ctxObj );
+
+			buffer.input();
+
+			assert.areSame( ctxObj, spy.getCall( 0 ).thisValue, 'callback was executed with the right context' );
 		},
 
 		'test checkIfAnyObjectPropertyMatches': function() {
@@ -856,7 +960,36 @@
 			CKEDITOR.tools.array.forEach( testCases, function( test ) {
 				assert.areSame( test.base64, CKEDITOR.tools.convertBytesToBase64( test.bytes ) );
 			} );
-		}
+		},
 
+		// (#2224)
+		'test convertToPx': function() {
+			var conversionArray = [ {
+				input: '10px',
+				output: 10
+			}, {
+				input: '-15px',
+				output: -15
+			}, {
+				input: '10pt',
+				output: 13
+			}, {
+				input: '-20px',
+				output: -20
+			}, {
+				input: '.25in',
+				output: 24
+			}, {
+				input: '-.5in',
+				output: -48
+			}, {
+				input: '50%',
+				output: '50%'
+			} ];
+
+			CKEDITOR.tools.array.forEach( conversionArray, function( item ) {
+				assert.areSame( item.output, CKEDITOR.tools.convertToPx( item.input ), 'Value ' + item.input + ' should be converted to ' + item.output );
+			} );
+		}
 	} );
 } )();
