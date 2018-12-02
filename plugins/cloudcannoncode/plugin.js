@@ -79,15 +79,17 @@
 				insertRange.collapse(true);
 				newElement = editor.document.createElement("pre");
 				newElement.setHtml("<code></code>");
-			} else
-			if (elementName === "pre") {
-				action = "replace";
-				newElement = editor.document.createElement("p");
-				newElement.setHtml(element.getHtml().trim().replace(/^<code[^>]*>([\s\S]*)<\/code>$/, "$1"));
 			} else if (toggleableElements[elementName]) {
 				action = "replace";
-				newElement = editor.document.createElement("pre");
-				newElement.setHtml("<code>" + element.getHtml() + "</code>");
+				var contentHtml = element.getHtml().trim().replace(/^<code[^>]*>([\s\S]*)<\/code>(<br>)*$/, "$1");
+
+				if (elementName === "pre") {
+					newElement = editor.document.createElement("p");
+					newElement.setHtml(contentHtml);
+				} else {
+					newElement = editor.document.createElement("pre");
+					newElement.setHtml("<code>" + contentHtml + "</code>");
+				}
 			} else if (isInsideListItem) {
 				action = "wrap";
 			}
