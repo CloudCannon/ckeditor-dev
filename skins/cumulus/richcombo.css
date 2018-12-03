@@ -26,21 +26,18 @@ The visual representation of a rich combo widget looks as follows:
 
 
 /* The box that hold the entire combo widget */
-.cke_combo
-{
+.cke_combo {
 	display: inline-block;
 	float: left;
 	position: relative;
 	margin-bottom: 5px;
 }
 
-.cke_rtl .cke_combo
-{
+.cke_rtl .cke_combo {
 	float: right;
 }
 
-.cke_hc .cke_combo
-{
+.cke_hc .cke_combo {
 	margin-top: 1px;
 	margin-bottom: 10px;
 }
@@ -48,8 +45,7 @@ The visual representation of a rich combo widget looks as follows:
 
 /* Combo separators. */
 /* Separators after every combo. */
-.cke_combo:after
-{
+.cke_combo:after {
 	content: "";
 	position: absolute;
 	height: 18px;
@@ -60,32 +56,31 @@ The visual representation of a rich combo widget looks as follows:
 	right: 0;
 }
 
-.cke_rtl .cke_combo:after
-{
+.cke_rtl .cke_combo:after {
 	border-right: 0;
 	border-left: 1px solid #bcbcbc;
 	right: auto;
 	left: 0;
 }
 
-.cke_hc .cke_combo:after
-{
+.cke_hc .cke_combo:after {
 	border-color: #000;
 }
 
 
 /* Combo button. */
 /* The container for combo text and arrow. */
-a.cke_combo_button
-{
+a.cke_combo_button {
 	cursor: default;
 	display: inline-block;
 	float: left;
-	padding: 1px;
+	padding: 0;
 	background-color: #fff;
 	border-radius: 2px;
 	border: 1px solid #ebebeb;
 	margin: 0 5px 0 0;
+	top: 1px;
+	position: relative;
 }
 
 .cke_combo_button,
@@ -94,13 +89,11 @@ a.cke_combo_button
 
 }
 
-.cke_rtl a.cke_combo_button
-{
+.cke_rtl a.cke_combo_button {
 	float: right;
 }
 
-.cke_hc a.cke_combo_button
-{
+.cke_hc a.cke_combo_button {
 	padding: 4px;
 }
 
@@ -109,9 +102,7 @@ a.cke_combo_button
 .cke_combo_on a.cke_combo_button,
 .cke_combo_off a.cke_combo_button:hover,
 .cke_combo_off a.cke_combo_button:focus,
-.cke_combo_off a.cke_combo_button:active
-{
-	/*background-color: #ebebeb;*/
+.cke_combo_off a.cke_combo_button:active {
 	border: 1px solid #bcbcbc;
 }
 
@@ -122,43 +113,37 @@ a.cke_combo_button
 
 
 .cke_combo_on a.cke_combo_button,
-.cke_combo_off a.cke_combo_button:active
-{
+.cke_combo_off a.cke_combo_button:active {
 	background: #fff;
 }
 
 /* Add Margin after last combo to keep next .cke_toolgroup same distance as in every other case. */
 .cke_toolbar .cke_combo + .cke_toolbar_end,
-.cke_toolbar .cke_combo + .cke_toolgroup
-{
+.cke_toolbar .cke_combo + .cke_toolgroup {
 	margin-right: 0;
 	margin-left: 2px;
 }
 
 .cke_rtl .cke_toolbar .cke_combo + .cke_toolbar_end,
-.cke_rtl .cke_toolbar .cke_combo + .cke_toolgroup
-{
+.cke_rtl .cke_toolbar .cke_combo + .cke_toolgroup {
 	margin-left: 0;
 	margin-right: 2px;
 }
 
 .cke_hc .cke_toolbar .cke_combo + .cke_toolbar_end,
-.cke_hc .cke_toolbar .cke_combo + .cke_toolgroup
-{
+.cke_hc .cke_toolbar .cke_combo + .cke_toolgroup {
 	margin-left: 5px;
 }
 
 .cke_hc.cke_rtl .cke_toolbar .cke_combo + .cke_toolbar_end,
-.cke_hc.cke_rtl .cke_toolbar .cke_combo + .cke_toolgroup
-{
+.cke_hc.cke_rtl .cke_toolbar .cke_combo + .cke_toolgroup {
 	margin-left: 0;
 	margin-right: 5px;
 }
 
 
 /* No separator after last combo in a row. */
-.cke_toolbar.cke_toolbar_last .cke_combo:nth-last-child(-n + 2):after
-{
+.cke_toolbar.cke_toolbar_last .cke_combo:nth-last-child(-n + 2):after {
 	content: none;
 	border: none;
 	width: 0;
@@ -170,36 +155,32 @@ a.cke_combo_button
 /* The label that shows the current value of the rich combo.
    By default, it holds the name of the property.
    See: .cke_combo_inlinelabel */
-.cke_combo_text
-{
-	line-height: 26px;
+.cke_combo_text {
+	line-height: 22px;
 	padding-left: 10px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	float: left;
 	cursor: default;
 	color: #484848;
-    width: 60px;
+	width: 60px;
 }
 
-.cke_rtl .cke_combo_text
-{
+.cke_rtl .cke_combo_text {
 	float: right;
 	text-align: right;
 	padding-left: 0;
 	padding-right: 10px;
 }
 
-.cke_hc .cke_combo_text
-{
+.cke_hc .cke_combo_text {
 	line-height: 18px;
 	font-size: 12px;
 }
 
 /* The handler which opens the panel of rich combo properties.
    It holds an arrow as a visual indicator. */
-.cke_combo_open
-{
+.cke_combo_open {
 	cursor: default;
 	display: inline-block;
 	font-size: 0;
@@ -209,14 +190,12 @@ a.cke_combo_button
 	width: 5px;
 }
 
-.cke_hc .cke_combo_open
-{
+.cke_hc .cke_combo_open {
 	height: 12px;
 }
 
 /* The arrow which is displayed inside of the .cke_combo_open handler. */
-.cke_combo_arrow
-{
+.cke_combo_arrow {
 	cursor: default;
 	margin: 11px 0 0;
 	float: left;
@@ -230,8 +209,7 @@ a.cke_combo_button
 	border-top: 3px solid #484848;
 }
 
-.cke_hc .cke_combo_arrow
-{
+.cke_hc .cke_combo_arrow {
 	font-size: 10px;
 	width: auto;
 	border: 0;
@@ -240,8 +218,7 @@ a.cke_combo_button
 
 /* The label of the combo widget. It is invisible by default, yet
    it's important for semantics and accessibility. */
-.cke_combo_label
-{
+.cke_combo_label {
 	display: none;
 	float: left;
 	line-height: 26px;
@@ -249,8 +226,7 @@ a.cke_combo_button
 	margin-right: 5px;
 }
 
-.cke_rtl .cke_combo_label
-{
+.cke_rtl .cke_combo_label {
 	float: right;
 	margin-left: 5px;
 	margin-right: 0;
@@ -258,7 +234,6 @@ a.cke_combo_button
 
 /* Disabled combo button styles. */
 .cke_combo_disabled .cke_combo_inlinelabel,
-.cke_combo_disabled .cke_combo_open
-{
+.cke_combo_disabled .cke_combo_open {
 	opacity: 0.3;
 }
