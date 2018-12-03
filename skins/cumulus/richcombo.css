@@ -197,7 +197,7 @@ a.cke_combo_button {
 /* The arrow which is displayed inside of the .cke_combo_open handler. */
 .cke_combo_arrow {
 	cursor: default;
-	margin: 11px 0 0;
+	margin: 10px 0 0 0;
 	float: left;
 
 	/* Pure CSS Arrow */
