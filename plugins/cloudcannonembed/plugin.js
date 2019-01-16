@@ -28,11 +28,23 @@ CKEDITOR.plugins.add("cloudcannonembed", {
 			},
 
 			data: function () {
-				this.element.setHtml(b64DecodeUnicode(this.data.embed));
+				var decoded = b64DecodeUnicode(this.data.embed),
+					sanitised = editor.config.sanitiseEmbedHtmlFn(decoded);
+
+				if (decoded !== sanitised) { // Means it contains unsanitised content (i.e. a script tag) or has been tampered with outside editor
+					this.element.setHtml(editor.config.unsafeEmbedTemplateFn(decoded));
+				} else {
+					this.element.setHtml(decoded);
+				}
 			},
 
 			downcast: function (element) {
 				element.attributes["data-cms-embed"] = this.data.embed;
+
+				// Return a clone here so we don't add potential script tags on save
+				var cloneEl = element.clone();
+				cloneEl.setHtml(b64DecodeUnicode(this.data.embed));
+				return cloneEl;
 			},
 
 			upcast: function (element) {
