@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -136,6 +136,9 @@
  * Event fired when executing `preview` command, which allows additional data manipulation.
  * With this event, the raw HTML content of the preview window to be displayed can be altered
  * or modified.
+ *
+ * **Note** This event **should** be also used to sanitize HTML to mitigate possible XSS attacks. Read
+ * {@glink guide/dev_best_practices#validate-preview-content validate preview content} to learn more.
  *
  * @event contentPreview
  * @member CKEDITOR

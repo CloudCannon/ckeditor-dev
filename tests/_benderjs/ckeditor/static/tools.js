@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -1080,10 +1080,10 @@
 		/**
 		 * Multiplies inputTests for every editor.
 		 *
-		 * @param {Object} editorsNames editors definitions.
-		 * @param {Object} inputTests Tests to apply on every editor.
-		 * @param {Boolean} isolateTests If set to `true` each test is run on new editor instance.
-		 * @returns {Object} Created tests for every editor.
+		 * @param {String[]} editorsNames Editors definitions.
+		 * @param {Object.<String, Function>} inputTests Tests to apply on every editor.
+		 * @param {Boolean} [isolateTests=false] If set to `true` each test is run on new editor instance.
+		 * @returns {Object.<String, Function>} Created tests for every editor.
 		 */
 		createTestsForEditors: function( editorsNames, inputTests, isolateTests ) {
 			var outputTests = {},

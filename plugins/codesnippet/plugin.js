@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -242,7 +242,7 @@
 		 *		}
 		 *
 		 * More information on how to change the list of languages is available
-		 * in the [Code Snippet documentation](#!/guide/dev_codesnippet-section-changing-languages-list).
+		 * in the {@glink guide/dev_codesnippet#changing-supported-languages Code Snippet documentation}.
 		 *
 		 * @property {Object} languages
 		 */
