@@ -492,7 +492,32 @@
 				toggleCells( cellsToToggle[ i ] );
 			}
 		} else if ( selectionOrCell instanceof CKEDITOR.dom.element ) {
-			selectionOrCell.renameNode( selectionOrCell.getName() === 'td' ? 'th' : 'td' );
+			if ( selectionOrCell.getName() === 'td' ) {
+				selectionOrCell.renameNode( 'th' );
+
+				var parentEl = selectionOrCell.getParent(),
+					firstTrEl;
+
+				if ( parentEl ) {
+					var parentParentEl = parentEl.getParent();
+					if ( parentParentEl ) {
+						firstTrEl = parentParentEl.getElementsByTag( 'tr' ).getItem(0);
+					}
+				}
+
+				var isFirstRow = ( parentEl && firstTrEl ) ?
+					parentEl.getUniqueId() === firstTrEl.getUniqueId() :
+					false;
+
+				if ( isFirstRow ) {
+					selectionOrCell.setAttribute( 'scope', 'col' );
+				} else if ( selectionOrCell.getIndex() === 0 ) {
+					selectionOrCell.setAttribute( 'scope', 'row' );
+				}
+			} else {
+				selectionOrCell.renameNode( 'td' );
+				selectionOrCell.removeAttribute( 'scope' );
+			}
 		}
 	}
 

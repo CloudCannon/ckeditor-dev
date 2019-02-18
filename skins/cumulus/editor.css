@@ -85,11 +85,35 @@ legend.cke_voice_label
 	margin: 0 auto;
 	table-layout: fixed;
 }
+
 .cke_table_grid td {
 	width: 20px;
 	height: 20px;
 	border: 1px solid #bbb;
 	cursor: pointer;
+}
+
+.cke_table_grid table.highlighted-both tr:first-of-type td,
+.cke_table_grid table.highlighted-both td:first-of-type,
+.cke_table_grid table.highlighted-top tr:first-of-type td,
+.cke_table_grid table.highlighted-left td:first-of-type {
+	border-color: #ebebeb;
+	background-color: #f0f0f0;
+	pointer-events: none;
+}
+
+.cke_table_grid select {
+	width: calc(100% - 4px);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: 1px solid #bbb;
+	margin: 1px 2px 0 2px;
+	box-sizing: border-box;
+	height: 18px;
+	border-radius: 2px;
+	background: #fff url(data:image/gif;base64,R0lGODlhCQAFAPAAAAAAAAAAACH5BAUKAAEALAAAAAAJAAUAAAIKhH+BGYoNGWxgFgA7) calc(100% - 5px) center no-repeat;
+	background-size: 7px;
 }
 
 .cke_editable:focus td.cke_table-faked-selection,
