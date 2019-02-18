@@ -15,6 +15,11 @@
 				var table = new CKEDITOR.dom.element("table", editor.document),
 					options = clickOptionsFn();
 
+				if (options.caption === "yes") {
+					var caption = table.append(new CKEDITOR.dom.element("caption", editor.document));
+					caption.setText("Caption");
+				}
+
 				if (options.headers === "both" || options.headers === "top") {
 					var thead = table.append(new CKEDITOR.dom.element("thead", editor.document)),
 						theadRow = thead.append(new CKEDITOR.dom.element("tr", editor.document));
@@ -53,29 +58,37 @@
 					insertTable(parseInt(i, 10) + 1, parseInt(j, 10) + 1, clickOptionsFn);
 				});
 
-				var output = "<a class='cke_table_grid'><table>";
+				var tableHtml = "<table>";
 
 				for (var i = 0; i < options.rows; i++) {
-					output += "<tr>";
+					tableHtml += "<tr>";
 
 					for (var j = 0; j < options.columns; j++) {
-						output += "<td data-row='" + (i + 1) + "' " +
+						tableHtml += "<td data-row='" + (i + 1) + "' " +
 							"data-column='" + (j + 1) + "' " +
 							"onclick='CKEDITOR.tools.callFunction(" + clickFn + ", " + i + ", " + j + "); return false;'></td>";
 					}
 
-					output += "</tr>";
+					tableHtml += "</tr>";
 				}
 
+				tableHtml += "</table>";
+
 				var headerSelectHtml =
-					"<select>" +
+					"<select class='cke_table_grid_header_select'>" +
 						"<option value='none' selected>No headers</option>" +
-						"<option value='top'>Top row</option>" +
-						"<option value='left'>Left column</option>" +
-						"<option value='both'>Both</option>" +
+						"<option value='top'>Top row header</option>" +
+						"<option value='left'>Left column header</option>" +
+						"<option value='both'>Both headers</option>" +
 					"</select>";
 
-				return output + "</table>" + headerSelectHtml + "</a>";
+				var captionSelectHtml =
+					"<select class='cke_table_grid_caption_select'>" +
+						"<option value='no' selected>No caption</option>" +
+						"<option value='yes'>Include caption</option>" +
+					"</select>";
+
+				return "<a class='cke_table_grid'>" + tableHtml + headerSelectHtml + captionSelectHtml + "</a>";
 			}
 
 			var selection = {
@@ -115,21 +128,27 @@
 					block.autoSize = true;
 					block.element.addClass("cke_colorblock");
 
-					var select;
+					var headerSelect,
+						captionSelect;
 					function clickOptionsFn() {
-						return {headers: select.getValue()};
+						return {
+							headers: headerSelect.getValue(),
+							caption: captionSelect.getValue()
+						};
 					}
 
 					var tableWrapper = CKEDITOR.dom.element.createFromHtml(renderQuickTable(clickOptionsFn));
 					var table = this.table = tableWrapper.getFirst();
-					select = tableWrapper.findOne("select");
 
-					select.on("input", function () {
+					headerSelect = tableWrapper.findOne("select.cke_table_grid_header_select");
+					captionSelect = tableWrapper.findOne("select.cke_table_grid_caption_select");
+
+					headerSelect.on("input", function () {
 						table.removeClass("highlighted-none")
 							.removeClass("highlighted-top")
 							.removeClass("highlighted-left")
 							.removeClass("highlighted-both")
-							.addClass("highlighted-" + select.getValue());
+							.addClass("highlighted-" + headerSelect.getValue());
 					});
 
 					table.on("mouseleave", function () {

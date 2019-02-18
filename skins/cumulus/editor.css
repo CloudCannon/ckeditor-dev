@@ -108,12 +108,16 @@ legend.cke_voice_label
 	-moz-appearance: none;
 	appearance: none;
 	border: 1px solid #bbb;
-	margin: 1px 2px 0 2px;
+	margin: 0 2px;
 	box-sizing: border-box;
 	height: 18px;
-	border-radius: 2px;
 	background: #fff url(data:image/gif;base64,R0lGODlhCQAFAPAAAAAAAAAAACH5BAUKAAEALAAAAAAJAAUAAAIKhH+BGYoNGWxgFgA7) calc(100% - 5px) center no-repeat;
-	background-size: 7px;
+	background-size: 6px;
+	color: #222;
+}
+
+.cke_table_grid select + select {
+	margin-top: 2px;
 }
 
 .cke_editable:focus td.cke_table-faked-selection,
