@@ -91,6 +91,59 @@ CKEDITOR.plugins.add( 'table', {
 			}
 		} ) );
 
+		editor.addCommand( 'tableToggleCaption', createDef( {
+			exec: function( editor ) {
+				var path = editor.elementPath(),
+					table = path.contains( 'table', 1 );
+
+				if ( !table )
+					return;
+
+				var caption = table.getElementsByTag( 'caption' ).getItem( 0 );
+
+				if ( caption ) {
+					caption.remove();
+				} else {
+					caption = table.append( new CKEDITOR.dom.element( 'caption', editor.document ) );
+					caption.setText( 'Caption' );
+					var range = editor.createRange();
+					range.moveToPosition( caption, CKEDITOR.POSITION_BEFORE_END );
+					range.select();
+				}
+			}
+		} ) );
+
+		editor.addCommand( 'tableToggleHead', createDef( {
+			exec: function( editor ) {
+				var path = editor.elementPath(),
+					table = path.contains( 'table', 1 );
+
+				if ( !table )
+					return;
+
+				var thead = table.getElementsByTag( 'thead' ).getItem( 0 );
+
+				if ( thead ) {
+					thead.remove();
+				} else {
+					var tr = table.getElementsByTag( 'tr' ).getItem( 0 );
+					if ( tr ) {
+						var columns = tr.getElementsByTag( 'td' ).count() + tr.getElementsByTag( 'th' ).count();
+						if ( columns ) {
+							thead = table.append( new CKEDITOR.dom.element( 'thead', editor.document ) );
+							var theadRow = thead.append( new CKEDITOR.dom.element( 'tr', editor.document ) );
+
+							for ( var i = 0; i < columns; i++ ) {
+								var theadCell = theadRow.append( new CKEDITOR.dom.element( 'th', editor.document ) );
+								theadCell.setAttribute( 'scope', 'col' );
+								theadCell.appendBogus();
+							}
+						}
+					}
+				}
+			}
+		} ) );
+
 		editor.ui.addButton && editor.ui.addButton( 'Table', {
 			label: lang.toolbar,
 			command: 'table',
@@ -110,11 +163,25 @@ CKEDITOR.plugins.add( 'table', {
 					order: 5
 				},
 
+				tablecaption: {
+					label: 'Toggle Caption',
+					command: 'tableToggleCaption',
+					group: 'table',
+					order: 2
+				},
+
+				tablehead: {
+					label: 'Toggle Header',
+					command: 'tableToggleHead',
+					group: 'table',
+					order: 1
+				},
+
 				tabledelete: {
 					label: lang.deleteTable,
 					command: 'tableDelete',
 					group: 'table',
-					order: 1
+					order: 3
 				}
 			} );
 		}
@@ -132,6 +199,8 @@ CKEDITOR.plugins.add( 'table', {
 				// menu item state is resolved on commands.
 				return {
 					tabledelete: CKEDITOR.TRISTATE_OFF,
+					tablehead: CKEDITOR.TRISTATE_OFF,
+					tablecaption: CKEDITOR.TRISTATE_OFF,
 					table: CKEDITOR.TRISTATE_OFF
 				};
 			} );

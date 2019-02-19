@@ -501,7 +501,7 @@
 				if ( parentEl ) {
 					var parentParentEl = parentEl.getParent();
 					if ( parentParentEl ) {
-						firstTrEl = parentParentEl.getElementsByTag( 'tr' ).getItem(0);
+						firstTrEl = parentParentEl.getElementsByTag( 'tr' ).getItem( 0 );
 					}
 				}
 
