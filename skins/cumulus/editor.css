@@ -114,6 +114,9 @@ legend.cke_voice_label
 	background: #fff url(data:image/gif;base64,R0lGODlhCQAFAPAAAAAAAAAAACH5BAUKAAEALAAAAAAJAAUAAAIKhH+BGYoNGWxgFgA7) calc(100% - 5px) center no-repeat;
 	background-size: 6px;
 	color: #222;
+	border-radius: 0;
+	padding: 0 3px;
+	font-size: 10px;
 }
 
 .cke_table_grid select + select {
