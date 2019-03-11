@@ -101,6 +101,11 @@ var CKBUILDER_CONFIG = {
 		cloudcannonembed: 1,
 		cloudcannonlink: 1,
 		cloudcannonpreventunnecessarynbsp: 1,
-		cloudcannontable: 1
+		cloudcannontable: 1,
+
+		// Can be removed once this ticket is resolved:
+		//  - https://github.com/ckeditor/ckeditor-dev/issues/835
+		//  - https://dev.ckeditor.com/ticket/13877
+		pastefromgoogledocs: 1
 	}
 };
