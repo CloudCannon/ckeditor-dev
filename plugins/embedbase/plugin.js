@@ -80,7 +80,7 @@
 	};
 
 	CKEDITOR.plugins.add( 'embedbase', {
-		lang: 'ar,az,bg,ca,cs,da,de,de-ch,en,en-au,eo,es,es-mx,eu,fr,gl,hr,hu,id,it,ja,ko,ku,lv,nb,nl,oc,pl,pt,pt-br,ro,ru,sk,sq,sv,tr,ug,uk,zh,zh-cn', // %REMOVE_LINE_CORE%
+		lang: 'ar,az,bg,ca,cs,da,de,de-ch,en,en-au,eo,es,es-mx,et,eu,fr,gl,hr,hu,id,it,ja,ko,ku,lv,nb,nl,oc,pl,pt,pt-br,ro,ru,sk,sq,sr,sr-latn,sv,tr,ug,uk,zh,zh-cn', // %REMOVE_LINE_CORE%
 		requires: 'dialog,widget,notificationaggregator',
 
 		onLoad: function() {
@@ -192,11 +192,6 @@
 				this.on( 'sendRequest', function( evt ) {
 					this._sendRequest( evt.data );
 				}, this, null, 999 );
-
-				// Expose the widget in the dialog - needed to trigger loadContent() and do error handling.
-				this.on( 'dialog', function( evt ) {
-					evt.data.widget = this;
-				}, this );
 
 				this.on( 'handleResponse', function( evt ) {
 					if ( evt.data.html ) {

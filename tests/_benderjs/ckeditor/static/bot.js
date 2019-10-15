@@ -77,7 +77,7 @@
 
 			// Allow all instantiation tasks to complete.
 			setTimeout( function() {
-				if ( bender.runner._inTest ) {
+				if ( bender.runner._inTest && !profile.ignoreEditorWaits ) {
 					resume( function() {
 						callback( bot );
 					} );
@@ -107,9 +107,25 @@
 
 		CKEDITOR[ creator ]( element, profile.config );
 
-		if ( bender.runner._inTest ) {
+		if ( bender.runner._inTest && !profile.ignoreEditorWaits ) {
 			tc.wait();
 		}
+	};
+
+	bender.editorBot.createAsync = function( profile ) {
+		return new CKEDITOR.tools.promise( function( resolve, reject ) {
+			// By default this editor, should be surrounded with `promise`, so wait statements are generated inside that function,
+			// and shouldn't be call inside creation of new editor.
+			profile.ignoreEditorWaits = profile.ignoreEditorWaits === undefined ? true : profile.ignoreEditorWaits;
+
+			try {
+				bender.editorBot.create( profile, function( bot ) {
+					resolve( bot );
+				} );
+			} catch ( e ) {
+				reject( e );
+			}
+		} );
 	};
 
 	/**
@@ -123,7 +139,8 @@
 			var editor = this.editor,
 				btn = editor.ui.get( name ),
 				tc = this.testCase,
-				btnEl;
+				btnEl,
+				leftMouseButton = CKEDITOR.env.ie && CKEDITOR.env.version < 9 ? 1 : CKEDITOR.MOUSE_BUTTON_LEFT;
 
 			editor.once( 'panelShow', function() {
 				// Make sure resume comes after wait.
@@ -137,7 +154,8 @@
 			} );
 
 			btnEl = CKEDITOR.document.getById( btn._.id );
-			btnEl.$[ CKEDITOR.env.ie ? 'onmouseup' : 'onclick' ]();
+
+			btnEl.fireEventHandler( CKEDITOR.env.ie ? 'mouseup' : 'click', { button: leftMouseButton } );
 
 			// combo panel opening is synchronous.
 			tc.wait();
@@ -168,7 +186,7 @@
 			// some heavy tests. It causes "wait() called but resume() never called"
 			// sort of errors because it takes longer to fire `dialogShow` than 1000ms,
 			// especially in build version of CKEditor (https://dev.ckeditor.com/ticket/13920).
-			tc.wait( 2000 );
+			tc.wait();
 		},
 
 		getData: function( fixHtml, compatHtml ) {
@@ -209,6 +227,7 @@
 			var editor = this.editor,
 				combo = editor.ui.get( name ),
 				tc = this.testCase,
+				leftMouseButton = CKEDITOR.tools.normalizeMouseButton( CKEDITOR.MOUSE_BUTTON_LEFT, true ),
 				item;
 
 			editor.once( 'panelShow', function() {
@@ -224,7 +243,7 @@
 
 			item = CKEDITOR.document.getById( 'cke_' + combo.id );
 			item = item.getElementsByTag( 'a' ).getItem( 0 );
-			item.$[ CKEDITOR.env.ie ? 'onmouseup' : 'onclick' ]();
+			item.fireEventHandler( CKEDITOR.env.ie ? 'mouseup' : 'click', { button: leftMouseButton } );
 
 			// combo panel opening is synchronous.
 			tc.wait();

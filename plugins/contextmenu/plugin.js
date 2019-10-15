@@ -59,8 +59,9 @@ CKEDITOR.plugins.add( 'contextmenu', {
 								// which make this property unreliable. (https://dev.ckeditor.com/ticket/4826)
 								( CKEDITOR.env.webkit ? holdCtrlKey : ( CKEDITOR.env.mac ? domEvent.$.metaKey : domEvent.$.ctrlKey ) );
 
-						if ( nativeContextMenuOnCtrl && isCtrlKeyDown )
+						if ( nativeContextMenuOnCtrl && isCtrlKeyDown ) {
 							return;
+						}
 
 						// Custom condition to only use the context menu for tables
 						if (domEvent.$.target.tagName !== "TD" && domEvent.$.target.tagName !== "TH") {
@@ -84,8 +85,9 @@ CKEDITOR.plugins.add( 'contextmenu', {
 								}, true ); // Exclude editor's editable.
 
 							// Fake selection for non-editables only (to exclude nested editables).
-							if ( contentEditableParent && contentEditableParent.getAttribute( 'contenteditable' ) == 'false' )
+							if ( contentEditableParent && contentEditableParent.getAttribute( 'contenteditable' ) == 'false' ) {
 								editor.getSelection().fake( contentEditableParent );
+							}
 						}
 
 						var doc = domEvent.getTarget().getDocument(),
@@ -97,7 +99,6 @@ CKEDITOR.plugins.add( 'contextmenu', {
 
 						CKEDITOR.tools.setTimeout( function() {
 							this.open( offsetParent, null, offsetX, offsetY );
-
 							// IE needs a short while to allow selection change before opening menu. (https://dev.ckeditor.com/ticket/7908)
 						}, CKEDITOR.env.ie ? 200 : 0, this );
 					}, this );
@@ -152,7 +153,6 @@ CKEDITOR.plugins.add( 'contextmenu', {
 
 					// https://dev.ckeditor.com/ticket/9362: Force selection check to update commands' states in the new context.
 					this.editor.selectionChange( 1 );
-
 					this.show( offsetParent, corner, offsetX, offsetY );
 				}
 			}

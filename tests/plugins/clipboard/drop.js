@@ -657,6 +657,55 @@ var testsForMultipleEditor = {
 			}, function() {
 				assert.areSame( '<p class="p">^foo</p>', bender.tools.getHtmlWithSelection( editor ), 'after drop' );
 			} );
+		},
+
+		// #(2292)
+		'test internal drag and drop on editors margin': function( editor ) {
+			var evt = bender.tools.mockDropEvent();
+
+			bender.tools.selection.setWithHtml( editor,
+				'<ol>' +
+					'<li><a href="http://test.com">{one</a></li>' +
+					'<li>two</li>' +
+					'<li>three</li>' +
+					'<li>four}</li>' +
+				'</ol>'
+			);
+
+			drag( editor, evt );
+			drop( editor, evt, {
+				dropContainer: editor.editable().find( 'li' ).getItem( 3 ),
+				dropOffset: 0,
+				expectedPasteEventCount: 1,
+				expectedDropPrevented: false,
+				expectedTransferType: CKEDITOR.DATA_TRANSFER_INTERNAL,
+				expectedText: CKEDITOR.env.edge ? 'onetwothreefour' : 'one\ntwo\nthree\nfour',
+				expectedHtml: '<ol><li><a href="http://test.com">one</a>@</li><li>two</li><li>three</li><li>four</li></ol>',
+				expectedDataType: 'html',
+				expectedDataValue: '<ol><li><a href="http://test.com">one</a>@</li><li>two</li><li>three</li><li>four</li></ol>'
+			} );
+		},
+
+		// (#808)
+		'test drop after range end in readOnlyMode': function( editor, bot ) {
+			var evt = bender.tools.mockDropEvent();
+
+			bot.setHtmlWithSelection( '<p class="p">^foo</p>' );
+			editor.setReadOnly( true );
+
+			drag( editor, evt );
+
+			drop( editor, evt, {
+				dropContainer: editor.editable(),
+				dropOffset: 0,
+				expectedPasteEventCount: 0,
+				expectedDropPrevented: true
+			}, function() {
+				return true;
+			}, function() {
+				editor.setReadOnly( false );
+				assert.areSame( '<p class="p">foo</p>', editor.getData(), 'after drop' );
+			} );
 		}
 	},
 	testsForOneEditor = {

@@ -108,8 +108,8 @@ CKEDITOR.plugins.add( 'basicstyles', {
 /**
  * The style definition that applies the **bold** style to the text.
  *
- * Read more in the {@glink guide/dev_basicstyles documentation}
- * and see the [SDK sample](https://sdk.ckeditor.com/samples/basicstyles.html).
+ * Read more in the {@glink features/basicstyles documentation}
+ * and see the {@glink examples/basicstyles example}.
  *
  *		config.coreStyles_bold = { element: 'b', overrides: 'strong' };
  *
@@ -126,8 +126,8 @@ CKEDITOR.config.coreStyles_bold = { element: 'strong', overrides: 'b' };
 /**
  * The style definition that applies the *italics* style to the text.
  *
- * Read more in the {@glink guide/dev_basicstyles documentation}
- * and see the [SDK sample](https://sdk.ckeditor.com/samples/basicstyles.html).
+ * Read more in the {@glink features/basicstyles documentation}
+ * and see the {@glink examples/basicstyles example}.
  *
  *		config.coreStyles_italic = { element: 'i', overrides: 'em' };
  *
@@ -144,8 +144,8 @@ CKEDITOR.config.coreStyles_italic = { element: 'em', overrides: 'i' };
 /**
  * The style definition that applies the <u>underline</u> style to the text.
  *
- * Read more in the {@glink guide/dev_basicstyles documentation}
- * and see the [SDK sample](https://sdk.ckeditor.com/samples/basicstyles.html).
+ * Read more in the {@glink features/basicstyles documentation}
+ * and see the {@glink examples/basicstyles example}.
  *
  *		CKEDITOR.config.coreStyles_underline = {
  *			element: 'span',
@@ -160,8 +160,8 @@ CKEDITOR.config.coreStyles_underline = { element: 'u' };
 /**
  * The style definition that applies the <strike>strikethrough</strike> style to the text.
  *
- * Read more in the {@glink guide/dev_basicstyles documentation}
- * and see the [SDK sample](https://sdk.ckeditor.com/samples/basicstyles.html).
+ * Read more in the {@glink features/basicstyles documentation}
+ * and see the {@glink examples/basicstyles example}.
  *
  *		CKEDITOR.config.coreStyles_strike = {
  *			element: 'span',
@@ -177,8 +177,8 @@ CKEDITOR.config.coreStyles_strike = { element: 's', overrides: 'strike' };
 /**
  * The style definition that applies the subscript style to the text.
  *
- * Read more in the {@glink guide/dev_basicstyles documentation}
- * and see the [SDK sample](https://sdk.ckeditor.com/samples/basicstyles.html).
+ * Read more in the {@glink features/basicstyles documentation}
+ * and see the {@glink examples/basicstyles example}.
  *
  *		CKEDITOR.config.coreStyles_subscript = {
  *			element: 'span',
@@ -194,8 +194,8 @@ CKEDITOR.config.coreStyles_subscript = { element: 'sub' };
 /**
  * The style definition that applies the superscript style to the text.
  *
- * Read more in the {@glink guide/dev_basicstyles documentation}
- * and see the [SDK sample](https://sdk.ckeditor.com/samples/basicstyles.html).
+ * Read more in the {@glink features/basicstyles documentation}
+ * and see the {@glink examples/basicstyles example}.
  *
  *		CKEDITOR.config.coreStyles_superscript = {
  *			element: 'span',

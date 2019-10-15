@@ -28,14 +28,11 @@
 	 * @returns {CKEDITOR.editor} The editor instance created.
 	 */
 	CKEDITOR.inline = function( element, instanceConfig ) {
-		if ( !CKEDITOR.env.isCompatible )
+		element = CKEDITOR.editor._getEditorElement( element );
+
+		if ( !element ) {
 			return null;
-
-		element = CKEDITOR.dom.element.get( element );
-
-		// Avoid multiple inline editor instances on the same element.
-		if ( element.getEditor() )
-			throw 'The editor instance "' + element.getEditor().name + '" is already attached to the provided element.';
+		}
 
 		var editor = new CKEDITOR.editor( instanceConfig, element, CKEDITOR.ELEMENT_MODE_INLINE ),
 			textarea = element.is( 'textarea' ) ? element : null;
@@ -96,11 +93,16 @@
 
 		// Handle editor destroying.
 		editor.on( 'destroy', function() {
+			var container = editor.container;
 			// Remove container from DOM if inline-textarea editor.
 			// Show <textarea> back again.
+			// Editor can be destroyed before container is created (#3115).
+			if ( textarea && container ) {
+				container.clearCustomData();
+				container.remove();
+			}
+
 			if ( textarea ) {
-				editor.container.clearCustomData();
-				editor.container.remove();
 				textarea.show();
 			}
 

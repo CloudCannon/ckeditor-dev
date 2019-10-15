@@ -59,6 +59,17 @@
 			minWidth: 310,
 			minHeight: CKEDITOR.env.ie ? 310 : 280,
 
+			getModel: function( editor ) {
+				if ( this.dialog.getName() !== 'tableProperties' ) {
+					return null;
+				}
+
+				var selection = editor.getSelection(),
+					range = selection && selection.getRanges()[ 0 ];
+
+				return range ? range._getTableElement( { table: 1 } ) : null;
+			},
+
 			onLoad: function() {
 				var dialog = this;
 
@@ -183,7 +194,6 @@
 						thead = new CKEDITOR.dom.element( table.$.tHead );
 						tbody = table.getElementsByTag( 'tbody' ).getItem( 0 );
 
-						var previousFirstRow = tbody.getFirst();
 						while ( thead.getChildCount() > 0 ) {
 							theRow = thead.getFirst();
 							for ( i = 0; i < theRow.getChildCount(); i++ ) {
@@ -193,7 +203,9 @@
 									newCell.removeAttribute( 'scope' );
 								}
 							}
-							theRow.insertBefore( previousFirstRow );
+
+							// Append the row to the start (#1397).
+							tbody.append( theRow, true );
 						}
 						thead.remove();
 					}

@@ -7,7 +7,7 @@
 
 ( function() {
 	CKEDITOR.plugins.add( 'uploadwidget', {
-		lang: 'az,bg,ca,cs,da,de,de-ch,el,en,en-au,eo,es,es-mx,et,eu,fa,fr,gl,hr,hu,id,it,ja,km,ko,ku,lv,nb,nl,no,oc,pl,pt,pt-br,ro,ru,sk,sq,sv,tr,ug,uk,zh,zh-cn', // %REMOVE_LINE_CORE%
+		lang: 'az,bg,ca,cs,da,de,de-ch,el,en,en-au,eo,es,es-mx,et,eu,fa,fr,gl,hr,hu,id,it,ja,km,ko,ku,lv,nb,nl,no,oc,pl,pt,pt-br,ro,ru,sk,sq,sr,sr-latn,sv,tr,ug,uk,zh,zh-cn', // %REMOVE_LINE_CORE%
 		requires: 'widget,clipboard,filetools,notificationaggregator',
 
 		init: function( editor ) {
@@ -15,6 +15,10 @@
 			// because otherwise wrong widget may handle upload placeholder element (e.g. image2 plugin would handle image).
 			// `data-widget` attribute is allowed only in the elements which has also `data-cke-upload-id` attribute.
 			editor.filter.allow( '*[!data-widget,!data-cke-upload-id]' );
+		},
+
+		isSupportedEnvironment: function() {
+			return CKEDITOR.plugins.clipboard.isFileApiSupported;
 		}
 	} );
 
