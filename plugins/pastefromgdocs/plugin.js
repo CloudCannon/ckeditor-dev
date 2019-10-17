@@ -35,6 +35,8 @@
 					data.dontFilter = true;
 					data.dataValue = CKEDITOR.pasteFilters.gdocs( gDocsHtml, editor );
 
+					editor.fire( 'afterPasteFromGDocs', data ); // Patched to allow some actual filtering
+
 					if ( editor.config.forcePasteAsPlainText === true ) {
 						// If `config.forcePasteAsPlainText` is set to `true`, force plain text even on Google Docs content (#1013).
 						data.type = 'text';

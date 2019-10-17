@@ -71,6 +71,8 @@ var CKBUILDER_CONFIG = {
 		maximize: 1,
 		newpage: 1,
 		pagebreak: 1,
+		pastetools: 1,
+		pastefromgdocs: 1,
 		pastefromword: 1,
 		pastetext: 1,
 		preview: 1,
@@ -102,11 +104,6 @@ var CKBUILDER_CONFIG = {
 		cloudcannonembed: 1,
 		cloudcannonlink: 1,
 		cloudcannonpreventunnecessarynbsp: 1,
-		cloudcannontable: 1,
-
-		// Can be removed once this ticket is resolved:
-		//  - https://github.com/ckeditor/ckeditor-dev/issues/835
-		//  - https://dev.ckeditor.com/ticket/13877
-		pastefromgoogledocs: 1
+		cloudcannontable: 1
 	}
 };
