@@ -132,14 +132,54 @@
 		icons: 'code', // %REMOVE_LINE_CORE%
 		hidpi: true, // %REMOVE_LINE_CORE%
 
+		disabledToolbarItems: [
+			"bold",
+			"italic",
+			"link",
+			"removeFormat",
+			"underline",
+			"strike",
+			"subscript",
+			"superscript",
+			"image",
+			"cloudcannonembed"
+		],
+
 		init: function (editor) {
 			var style = new CKEDITOR.style({element: "code"});
 
 			editor.attachStyleStateChange(style, function (state) {
 				if (!editor.readOnly) {
 					editor.getCommand("code").setState(state);
+
+					if (state === CKEDITOR.TRISTATE_ON) {
+						// Disable buttons that clash
+						for (var i = 0; i < this.disabledToolbarItems.length; i++) {
+							var command = editor.getCommand(this.disabledToolbarItems[i])
+
+							if (command) {
+								command.setState(CKEDITOR.TRISTATE_DISABLED);
+							} else {
+								console.log("command not found", this.disabledToolbarItems[i]);
+							}
+						}
+
+						// Disable styles and format combo boxes
+						function deferredDisableCombo(combo) {
+							return function () {
+								combo.setState(CKEDITOR.TRISTATE_DISABLED);
+							};
+						}
+
+						var comboGroup = (editor.toolbar[0] || {}).items;
+						for (var j = 0; j < comboGroup.length; j++) {
+							if (comboGroup[j].name === "styles" || comboGroup[j].name === "format") {
+								setTimeout(deferredDisableCombo(comboGroup[j]), 10);
+							}
+						}
+					}
 				}
-			});
+			}.bind(this));
 
 			editor.addCommand("code", new CodeStyleCommand(style));
 
