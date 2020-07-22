@@ -152,13 +152,14 @@
 				if (!editor.readOnly) {
 					editor.getCommand("code").setState(state);
 
+
 					if (state === CKEDITOR.TRISTATE_ON) {
 						// Disable buttons that clash
 						for (var i = 0; i < this.disabledToolbarItems.length; i++) {
 							var command = editor.getCommand(this.disabledToolbarItems[i])
 
 							if (command) {
-								command.setState(CKEDITOR.TRISTATE_DISABLED);
+								command.disable();
 							} else {
 								console.log("command not found", this.disabledToolbarItems[i]);
 							}
@@ -175,6 +176,19 @@
 						for (var j = 0; j < comboGroup.length; j++) {
 							if (comboGroup[j].name === "styles" || comboGroup[j].name === "format") {
 								setTimeout(deferredDisableCombo(comboGroup[j]), 10);
+							}
+						}
+					}
+					else{
+
+						// Disable buttons that clash
+						for (var i = 0; i < this.disabledToolbarItems.length; i++) {
+							var command = editor.getCommand(this.disabledToolbarItems[i])
+
+							if (command) {
+								command.enable();
+							} else {
+								console.log("command not found", this.disabledToolbarItems[i]);
 							}
 						}
 					}
