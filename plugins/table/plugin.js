@@ -105,7 +105,7 @@ CKEDITOR.plugins.add( 'table', {
 				if ( caption ) {
 					caption.remove();
 				} else {
-					caption = table.append( new CKEDITOR.dom.element( 'caption', editor.document ) );
+					caption = table.append( new CKEDITOR.dom.element( 'caption', editor.document ), true );
 					caption.setText( 'Caption' );
 					var range = editor.createRange();
 					range.moveToPosition( caption, CKEDITOR.POSITION_BEFORE_END );
@@ -131,7 +131,16 @@ CKEDITOR.plugins.add( 'table', {
 					if ( tr ) {
 						var columns = tr.getElementsByTag( 'td' ).count() + tr.getElementsByTag( 'th' ).count();
 						if ( columns ) {
-							thead = table.append( new CKEDITOR.dom.element( 'thead', editor.document ) );
+							var caption = table.findOne( 'caption' );
+
+							thead = new CKEDITOR.dom.element( 'thead', editor.document );
+
+							if ( caption ) {
+								thead.insertAfter( caption );
+							} else {
+								table.append( thead, true );
+							}
+
 							var theadRow = thead.append( new CKEDITOR.dom.element( 'tr', editor.document ) );
 
 							for ( var i = 0; i < columns; i++ ) {
