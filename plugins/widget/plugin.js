@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -288,6 +288,10 @@
 		 * This method is triggered by the {@link #event-checkSelection} event.
 		 */
 		checkSelection: function() {
+			if ( !this.editor.getSelection() ) {
+				return;
+			}
+
 			var sel = this.editor.getSelection(),
 				selectedElement = sel.getSelectedElement(),
 				updater = stateUpdater( this ),
@@ -986,9 +990,21 @@
 		 *
 		 * For every `partName => selector` pair in {@link CKEDITOR.plugins.widget.definition#parts},
 		 * one `partName => element` pair is added to this object during the widget initialization.
+		 * Parts can be reinitialized with the {@link #refreshParts} method.
 		 *
 		 * @readonly
 		 * @property {Object} parts
+		 */
+
+		/**
+		 * An object containing definitions of widget parts (`part name => CSS selector`).
+		 *
+		 * Unlike the {@link #parts} object, it stays unchanged throughout the widget lifecycle
+		 * and is used in the {@link #refreshParts} method.
+		 *
+		 * @readonly
+		 * @property {Object} partSelectors
+		 * @since 4.14.0
 		 */
 
 		/**
@@ -1418,6 +1434,31 @@
 
 			// Always focus editor (not only when focusManger.hasFocus is false) (because of https://dev.ckeditor.com/ticket/10483).
 			this.editor.focus();
+		},
+
+		/**
+		 * Refreshes the widget's mask. It can be used together with the {@link #refreshParts} method to reinitialize the mask
+		 * for dynamically created widgets.
+		 *
+		 * @since 4.14.0
+		 */
+		refreshMask: function() {
+			setupMask( this );
+		},
+
+		/**
+		 * Reinitializes the widget's {@link #parts}.
+		 *
+		 * This method can be used to link new DOM elements to widget parts, for example in case when the widget's HTML is created
+		 * asynchronously or modified during the widget lifecycle. Note that it uses the {@link #partSelectors} object, so it does not
+		 * refresh parts that were created manually.
+		 *
+		 * @since 4.14.0
+		 * @param {Boolean} [refreshInitialized=true] Whether the parts that are already initialized should be reinitialized.
+		 */
+		refreshParts: function( refreshInitialized ) {
+			refreshInitialized = typeof refreshInitialized !== 'undefined' ? refreshInitialized : true;
+			setupParts( this, refreshInitialized );
 		},
 
 		/**
@@ -1887,11 +1928,19 @@
 			}
 			this._.initialSetData = false;
 
+			// Unescape protected content to prevent double escaping and corruption of content.
+			// This can be done by transforming the content to data format and then back to input HTML (#4060).
+			data = this.editor.dataProcessor.toDataFormat( data, {
+				context: this.getName(),
+				filter: this.filter,
+				enterMode: this.enterMode
+			} );
 			data = this.editor.dataProcessor.toHtml( data, {
 				context: this.getName(),
 				filter: this.filter,
 				enterMode: this.enterMode
 			} );
+
 			this.setHtml( data );
 
 			this.editor.widgets.initOnAll( this );
@@ -2590,7 +2639,14 @@
 				return;
 			}
 
-			if ( id === '' || transferType != CKEDITOR.DATA_TRANSFER_INTERNAL ) {
+			if ( transferType != CKEDITOR.DATA_TRANSFER_INTERNAL ) {
+				return;
+			}
+
+			// Add support for dropping selection containing more than widget itself
+			// or more than one widget (#3441).
+			if ( id === '' && editor.widgets.selected.length > 0 ) {
+				evt.data.dataTransfer.setData( 'text/html', getClipboardHtml( editor ) );
 				return;
 			}
 
@@ -2809,15 +2865,26 @@
 
 	// Setup selection observer which will trigger:
 	// * widget select & focus on selection change,
-	// * nested editable focus (related properites and classes) on selection change,
+	// * nested editable focus (related properties and classes) on selection change,
 	// * deselecting and blurring all widgets on data,
 	// * blurring widget on editor blur.
 	function setupSelectionObserver( widgetsRepo ) {
 		var editor = widgetsRepo.editor;
 
-		editor.on( 'selectionCheck', function() {
-			widgetsRepo.fire( 'checkSelection' );
+		editor.on( 'selectionCheck', fireCheckSelection );
+
+		// The selectionCheck event is fired on keyup, so we must force refreshing
+		// widgets selection on key event. Also fire it only in WYSIWYG mode (#3352, #3704).
+		editor.on( 'contentDom', function() {
+			editor.editable().attachListener( editor, 'key', function() {
+				setTimeout( fireCheckSelection, 10 );
+			} );
 		} );
+
+		// (#3498)
+		if ( !CKEDITOR.env.ie ) {
+			widgetsRepo.on( 'checkSelection', fixCrossContentSelection );
+		}
 
 		widgetsRepo.on( 'checkSelection', widgetsRepo.checkSelection, widgetsRepo );
 
@@ -2856,6 +2923,48 @@
 			if ( ( widget = widgetsRepo.widgetHoldingFocusedEditable ) )
 				setFocusedEditable( widgetsRepo, widget, null );
 		} );
+
+		// Selection is fixed only when it starts in content and ends in a widget (and vice versa).
+		// It's not possible to manually create selection which starts inside one widget and ends in another,
+		// so we are skipping this case to simplify implementation (#3498).
+		function fixCrossContentSelection() {
+			var selection = editor.getSelection();
+			if ( !selection ) {
+				return;
+			}
+
+			var range = selection.getRanges()[ 0 ];
+			if ( !range || range.collapsed ) {
+				return;
+			}
+
+			var startWidget = findWidget( range.startContainer ),
+				endWidget = findWidget( range.endContainer );
+
+			if ( !startWidget && endWidget ) {
+				range.setEndBefore( endWidget.wrapper );
+				range.select();
+			} else if ( startWidget && !endWidget ) {
+				range.setStartAfter( startWidget.wrapper );
+				range.select();
+			}
+		}
+
+		function findWidget( node ) {
+			if ( !node ) {
+				return null;
+			}
+
+			if ( node.type == CKEDITOR.NODE_TEXT ) {
+				return findWidget( node.getParent() );
+			}
+
+			return editor.widgets.getByElement( node );
+		}
+
+		function fireCheckSelection() {
+			widgetsRepo.fire( 'checkSelection' );
+		}
 	}
 
 	// Set up actions like:
@@ -3396,21 +3505,7 @@
 			bookmarks = editor.getSelection().createBookmarks( true );
 		}
 
-		copyBin.handle( getClipboardHtml() );
-
-		function getClipboardHtml() {
-			var selectedHtml = editor.getSelectedHtml( true );
-
-			if ( editor.widgets.focused ) {
-				return editor.widgets.focused.getClipboardHtml();
-			}
-
-			editor.once( 'toDataFormat', function( evt ) {
-				evt.data.widgetsCopy = true;
-			}, null, null, -1 );
-
-			return editor.dataProcessor.toDataFormat( selectedHtml );
-		}
+		copyBin.handle( getClipboardHtml( editor ) );
 
 		function handleCut() {
 			if ( focused ) {
@@ -3462,6 +3557,20 @@
 			this.editor.forceNextSelectionCheck();
 			this.editor.selectionChange( 1 );
 		}
+	}
+
+	function getClipboardHtml( editor ) {
+		var selectedHtml = editor.getSelectedHtml( true );
+
+		if ( editor.widgets.focused ) {
+			return editor.widgets.focused.getClipboardHtml();
+		}
+
+		editor.once( 'toDataFormat', function( evt ) {
+			evt.data.widgetsCopy = true;
+		}, null, null, -1 );
+
+		return editor.dataProcessor.toDataFormat( selectedHtml );
 	}
 
 	function setupWidget( widget, widgetDef ) {
@@ -3540,15 +3649,23 @@
 	// partName => selector pairs
 	// with:
 	// partName => element pairs
-	function setupParts( widget ) {
+	function setupParts( widget, refreshInitialized ) {
+		if ( !widget.partSelectors ) {
+			widget.partSelectors = widget.parts;
+		}
+
 		if ( widget.parts ) {
 			var parts = {},
 				el,
 				partName;
 
-			for ( partName in widget.parts ) {
-				el = widget.wrapper.findOne( widget.parts[ partName ] );
-				parts[ partName ] = el;
+			for ( partName in widget.partSelectors ) {
+				if ( refreshInitialized || !widget.parts[ partName ] || typeof widget.parts[ partName ] == 'string' ) {
+					el = widget.wrapper.findOne( widget.partSelectors[ partName ] );
+					parts[ partName ] = el;
+				} else {
+					parts[ partName ] = widget.parts[ partName ];
+				}
 			}
 			widget.parts = parts;
 		}
@@ -3669,8 +3786,8 @@
 		var part = this.parts[ this.maskPart ],
 			mask;
 
-		// If requested part is invalid, don't create mask.
-		if ( !part ) {
+		// If requested part is invalid or wasn't fetched yet (#3775), don't create mask.
+		if ( !part || typeof part == 'string' ) {
 			return;
 		}
 

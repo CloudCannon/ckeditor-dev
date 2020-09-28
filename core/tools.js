@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -1180,6 +1180,24 @@
 				obj[ arr[ i ] ] = fillWith;
 
 			return obj;
+		},
+
+		/**
+		 * Finds all span {@link CKEDITOR.dom.element elements} styled with the given property in the editor contents.
+		 *
+		 * @since 4.15.0
+		 * @param {String} property CSS property which will be used in query.
+		 * @param {CKEDITOR.dom.element} source The element to be searched.
+		 * @returns {Array} Returns an array of {@link CKEDITOR.dom.element}s.
+		 */
+		getStyledSpans: function( property, source ) {
+			var testProperty = CKEDITOR.env.ie && CKEDITOR.env.version == 8 ? property.toUpperCase() : property,
+				spans = source.find( 'span[style*=' + testProperty + ']' ).toArray();
+
+			// This is to filter out spans e.g. with background color when we want text color.
+			return CKEDITOR.tools.array.filter( spans, function( span ) {
+				return !!( span.getStyle( property ) );
+			} );
 		},
 
 		/**
@@ -2611,7 +2629,7 @@
 	 *
 	 * Unlike {@link CKEDITOR.tools.buffers.event} this class allows passing custom parameters into the {@link #input}
 	 * function. For more information see the
-	 * [Throttling function issue](https://github.com/ckeditor/ckeditor-dev/issues/1993).
+	 * [Throttling function issue](https://github.com/ckeditor/ckeditor4/issues/1993).
 	 *
 	 * @since 4.11.0
 	 * @class CKEDITOR.tools.buffers.throttle

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -279,17 +279,12 @@
 			this._listeners.push( this.view.on( 'click-item', this.onItemClick, this ) );
 
 			// Update view position on viewport change.
+			// Note: CKEditor's event system has a limitation that one function
+			// cannot be used as listener for the same event more than once. Hence, wrapper functions.
 			this._listeners.push( win.on( 'scroll', function() {
 				this.viewRepositionListener();
 			}, this ) );
 			this._listeners.push( editorScrollableElement.on( 'scroll', function() {
-				this.viewRepositionListener();
-			}, this ) );
-
-			this._listeners.push( editor.on( 'contentDom', onContentDom, this ) );
-			// CKEditor's event system has a limitation that one function (in this case this.check)
-			// cannot be used as listener for the same event more than once. Hence, wrapper function.
-			this._listeners.push( editor.on( 'change', function() {
 				this.viewRepositionListener();
 			}, this ) );
 
@@ -298,19 +293,28 @@
 				e.data.preventDefault();
 			}, null, null, 9999 ) );
 
-			// Attach if editor is already initialized.
+			// Register keybindings if editor is already initialized.
 			if ( editable ) {
-				onContentDom.call( this );
+				this.registerPanelNavigation();
 			}
 
-			function onContentDom() {
-				// Priority 5 to get before the enterkey.
-				// Note: CKEditor's event system has a limitation that one function (in this case this.onKeyDown)
-				// cannot be used as listener for the same event more than once. Hence, wrapper function.
-				this._listeners.push( editable.on( 'keydown', function( evt ) {
-					this.onKeyDown( evt );
-				}, this, null, 5 ) );
-			}
+			// Note: CKEditor's event system has a limitation that one function
+			// cannot be used as listener for the same event more than once. Hence, wrapper function.
+			// (#4107)
+			editor.on( 'contentDom', function() {
+				this.registerPanelNavigation();
+			}, this );
+		},
+
+		registerPanelNavigation: function() {
+			var editable = this.editor.editable();
+
+			// Priority 5 to get before the enterkey.
+			// Note: CKEditor's event system has a limitation that one function (in this case this.onKeyDown)
+			// cannot be used as listener for the same event more than once. Hence, wrapper function.
+			this._listeners.push( editable.attachListener( editable, 'keydown', function( evt ) {
+				this.onKeyDown( evt );
+			}, this, null, 5 ) );
 		},
 
 		/**
@@ -439,7 +443,7 @@
 		// LISTENERS ------------------
 
 		/**
-		 * The function that should be called once the content has changed.
+		 * The function that should be called when the view has to be repositioned, e.g on scroll.
 		 *
 		 * @private
 		 */
@@ -770,7 +774,7 @@
 			}
 
 			// Consider that offset host might be repositioned on its own.
-			// Similar to #1048. See https://github.com/ckeditor/ckeditor-dev/pull/1732#discussion_r182790235.
+			// Similar to #1048. See https://github.com/ckeditor/ckeditor4/pull/1732#discussion_r182790235.
 			var hostElement = CKEDITOR.document.getBody();
 			if ( hostElement.getComputedStyle( 'position' ) === 'static' ) {
 				hostElement = hostElement.getParent();

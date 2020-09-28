@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -597,6 +597,15 @@ CKEDITOR.STYLE_OBJECT = 3;
 	CKEDITOR.style.customHandlers = {};
 
 	/**
+	 * List of all elements that are ignored during styling.
+	 *
+	 * @since 4.15.0
+	 * @property {String[]} [unstylableElements=[]]
+	 * @member CKEDITOR.style
+	*/
+	CKEDITOR.style.unstylableElements = [];
+
+	/**
 	 * Creates a {@link CKEDITOR.style} subclass and registers it in the style system.
 	 * Registered class will be used as a handler for a style of this type. This allows
 	 * to extend the styles system, which by default uses only the {@link CKEDITOR.style}, with
@@ -680,7 +689,7 @@ CKEDITOR.STYLE_OBJECT = 3;
 	 * The only style handler which can be implemented from scratch without huge effort is a style
 	 * applicable to objects ({@glink features/styles#style-types read more about types}).
 	 * Such style can only be applied when a specific object is selected. An example implementation can
-	 * be found in the [widget plugin](https://github.com/ckeditor/ckeditor-dev/blob/master/plugins/widget/plugin.js).
+	 * be found in the [widget plugin](https://github.com/ckeditor/ckeditor4/blob/master/plugins/widget/plugin.js).
 	 *
 	 * When implementing a style handler from scratch at least the following methods must be defined:
 	 *
@@ -876,7 +885,9 @@ CKEDITOR.STYLE_OBJECT = 3;
 			} else {
 				var nodeName = currentNode.type == CKEDITOR.NODE_ELEMENT ? currentNode.getName() : null,
 					nodeIsReadonly = nodeName && ( currentNode.getAttribute( 'contentEditable' ) == 'false' ),
-					nodeIsNoStyle = nodeName && currentNode.getAttribute( 'data-nostyle' );
+					nodeIsUnstylable = nodeName &&
+						CKEDITOR.tools.array.indexOf( CKEDITOR.style.unstylableElements, nodeName ) !== -1,
+					nodeIsNoStyle = nodeName && ( currentNode.getAttribute( 'data-nostyle' ) || nodeIsUnstylable );
 
 				// Skip bookmarks or comments.
 				if ( ( nodeName && currentNode.data( 'cke-bookmark' ) ) || currentNode.type === CKEDITOR.NODE_COMMENT ) {

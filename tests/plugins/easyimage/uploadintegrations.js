@@ -9,7 +9,8 @@
 	bender.editor = {
 		config: {
 			// Disable ACF, we want to catch any uncontrolled junk.
-			allowedContent: true
+			allowedContent: true,
+			language: 'en'
 		}
 	};
 
@@ -56,7 +57,7 @@
 				this.editor.widgets.registered.easyimage.loaderType = AsyncSuccessFileLoader;
 
 				this.editor.on( 'fileUploadResponse', function( evt ) {
-					// Prevent this guy from picking up https://github.com/ckeditor/ckeditor-dev/blob/565d9c3a3613f35167d6555123b6ca316ead7ab9/plugins/filetools/plugin.js#L93-L122
+					// Prevent this guy from picking up https://github.com/ckeditor/ckeditor4/blob/565d9c3a3613f35167d6555123b6ca316ead7ab9/plugins/filetools/plugin.js#L93-L122
 					// it would complain about missing uploaded/error properties.
 					evt.cancel();
 				}, null, null, 5 );

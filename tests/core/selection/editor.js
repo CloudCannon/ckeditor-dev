@@ -767,7 +767,51 @@ bender.test( {
 		editor.editable().findOne( '#nested' ).focus();
 
 		assert.areEqual( 'em', editor.elementPath().blockLimit.getName() );
-	}
+	},
+
+	// (#3475)
+	'test selection with one range should not be locked': function() {
+		if ( !CKEDITOR.env.gecko ) {
+			assert.ignore();
+		}
+
+		bender.editorBot.create( {
+			name: 'plain-text',
+			config: {
+				plugins: 'wysiwygarea,clipboard,toolbar'
+			}
+		}, function( bot ) {
+			var editor = bot.editor,
+				editable = editor.editable();
+
+			bot.setHtmlWithSelection( '<p>foo [bar] baz</p>' );
+
+			editable.fire( 'focusout' );
+
+			assert.areEqual( 0, editor.getSelection().isLocked, 'Simple selection should not be locked' );
+		} );
+	},
+
+	// (#3498)
+	'test getSelectedRanges': function() {
+		var editor = this.editors.editor;
+
+		bender.tools.setHtmlWithSelection( editor, '<p>Hello, ^World!</p>' );
+
+		assert.isTrue( editor.getSelection().getRanges()[ 0 ].equals( editor.getSelectedRanges()[ 0 ] ) );
+	},
+
+	// (#3498)
+	'test getSelectedRanges with null selection': function() {
+		var editor = this.editors.editor,
+			selectionStub = sinon.stub( editor, 'getSelection' ).returns( null ),
+			result = editor.getSelectedRanges();
+
+		selectionStub.restore();
+
+		arrayAssert.doesNotContainItems( result );
+	},
+
 } );
 
 function testSelectionCheck( editor, event ) {

@@ -1,5 +1,5 @@
-/**
- * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+﻿/**
+ * @license Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -8,7 +8,8 @@
 
 	var stylesLoaded = false,
 		WIDGET_NAME = 'easyimage',
-		BUTTON_PREFIX = 'EasyImage';
+		BUTTON_PREFIX = 'EasyImage',
+		SUPPORTED_IMAGE_TYPES = [ 'jpeg', 'png', 'gif', 'bmp' ];
 
 	function capitalize( str ) {
 		return CKEDITOR.tools.capitalize( str, true );
@@ -247,7 +248,7 @@
 
 				styleableElements: 'figure',
 
-				supportedTypes: /image\/(jpeg|png|gif|bmp)/,
+				supportedTypes: new RegExp( 'image/(' + SUPPORTED_IMAGE_TYPES.join( '|' ) + ')', 'i' ),
 
 				loaderType: CKEDITOR.plugins.cloudservices.cloudServicesLoader,
 
@@ -274,6 +275,14 @@
 						}
 
 						image.once( 'load', function() {
+							// Sometimes Safari can't calculate correctly dimensions of the image.
+							// In such a case, force reload (#4183).
+							if ( !$image.naturalWidth ) {
+								$image.src = $image.src;
+
+								return getNaturalWidth( image, callback );
+							}
+
 							callback( $image.naturalWidth );
 						} );
 					}
@@ -288,9 +297,17 @@
 						}
 					}
 
-					var imagePart = this.parts.image;
+					var imagePart = this.parts.image,
+						isIncomplete = imagePart && !imagePart.$.complete,
+						isIncorrectlyCalculated = imagePart && imagePart.$.complete && !imagePart.$.naturalWidth;
 
-					if ( imagePart && !imagePart.$.complete ) {
+					if ( isIncomplete || isIncorrectlyCalculated ) {
+						if ( isIncorrectlyCalculated ) {
+							// Sometimes Safari can't calculate correctly dimensions of the image.
+							// In such a case, force reload (#4183).
+							imagePart.$.src = imagePart.$.src;
+						}
+
 						// If widget begins with incomplete image, make sure to refresh balloon toolbar (if present)
 						// once the image size is available.
 						getNaturalWidth( imagePart, function() {
@@ -376,6 +393,7 @@
 	}
 
 	function addPasteListener( editor ) {
+		var imgWithDataUri = new RegExp( '<img[^>]*\\ssrc=[\\\'\\"]?data:image/(' + SUPPORTED_IMAGE_TYPES.join( '|' ) + ');base64,' , 'i' );
 		// Easy Image requires an img-specific paste listener for inlined images. This case happens in:
 		// * IE11 when pasting images from the clipboard.
 		// * FF when pasting a single image **file** from the clipboard.
@@ -386,7 +404,7 @@
 			}
 
 			// For performance reason do not parse data if it does not contain img tag and data attribute.
-			if ( !evt.data.dataValue.match( /<img[\s\S]+data:/i ) ) {
+			if ( !imgWithDataUri.test( evt.data.dataValue ) ) {
 				return;
 			}
 
@@ -523,7 +541,7 @@
 
 	CKEDITOR.plugins.add( 'easyimage', {
 		requires: 'imagebase,balloontoolbar,button,dialog,cloudservices',
-		lang: 'en',
+		lang: 'ar,az,bg,cs,da,de,en,en-au,et,fa,fr,gl,hr,hu,it,ku,lv,nb,nl,no,pl,pt,pt-br,ro,ru,sk,sq,sr,sr-latn,sv,tr,tt,uk,zh,zh-cn',
 		icons: 'easyimagefull,easyimageside,easyimagealt,easyimagealignleft,easyimagealigncenter,easyimagealignright,easyimageupload', // %REMOVE_LINE_CORE%
 		hidpi: true, // %REMOVE_LINE_CORE%
 
