@@ -63,6 +63,8 @@
 
 					data.dataValue = CKEDITOR.pasteFilters.libreoffice( clipboardHtml, editor );
 
+					editor.fire( 'afterPasteFromLibreOffice', data ); // Patched to allow some actual filtering
+
 					if ( editor.config.forcePasteAsPlainText === true ) {
 						// If `config.forcePasteAsPlainText` is set to `true`, force plain text even on Libre Office content (#1013).
 						data.type = 'text';
